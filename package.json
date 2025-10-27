@@ -1,0 +1,34 @@
+{
+  "name": "stringx-js",
+  "description": "A JavaScript utility library inspired by Laravel's Str helper class.",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test src/tests/*.test.js",
+    "test:watch": "node --test --watch src/tests/*.test.js"
+  },
+  "keywords": [
+    "string",
+    "laravel",
+    "str",
+    "utility",
+    "helper",
+    "javascript",
+    "es6",
+    "string-manipulation"
+  ],
+  "author": "Ayman Atmeh",
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/stringx-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/stringx-js/issues"
+  }
+}
