@@ -6,9 +6,10 @@ node_modules/
 # Test files
 src/tests/
 
-# Documentation
-examples.js
+# Documentation and examples
+examples/
 LaravelStrings.php
+strings.md
 
 # Git files
 .git/

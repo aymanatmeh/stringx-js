@@ -1,4 +1,5 @@
 import { v4 as uuidv4, v7 as uuidv7, validate as validateUuid } from 'uuid';
+import Stringable from './Stringable.js';
 
 /**
  * String helper class inspired by Laravel's Str helper
@@ -11,6 +12,13 @@ class Str {
     static uuidFactory = null;
     static ulidFactory = null;
     static randomStringFactory = null;
+
+    /**
+     * Return a new Stringable object for fluent string manipulation.
+     */
+    static of(string) {
+        return new Stringable(string);
+    }
 
     /**
      * Return the remainder of a string after the first occurrence of a given value.
@@ -566,8 +574,11 @@ class Str {
      * Generate a URL friendly "slug" from a given string.
      */
     static slug(title, separator = '-') {
+        // Handle camelCase by adding spaces before uppercase letters
+        let slug = title.replace(/([a-z])([A-Z])/g, '$1 $2');
+
         // Convert to lowercase and replace special characters
-        let slug = title.toLowerCase()
+        slug = slug.toLowerCase()
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, ''); // Remove diacritics
 

@@ -10,6 +10,8 @@ npm install stringx-js
 
 ## Usage
 
+### Static Methods
+
 ```javascript
 import Str from 'stringx-js';
 
@@ -21,9 +23,53 @@ Str.uuid(); // 'e3c2d7a4-...'
 
 // Limit string length
 Str.limit('The quick brown fox', 10); // 'The quick...'
-
-// And many more...
 ```
+
+### Fluent Chaining with `of()`
+
+StringX-JS supports Laravel-style fluent method chaining using the `of()` method:
+
+```javascript
+import Str from 'stringx-js';
+
+// Chain multiple methods together
+const result = Str.of('  hello world  ')
+    .trim()
+    .camel()
+    .append('Test')
+    .slug('-')
+    .upper()
+    .toString();
+// Result: 'HELLO-WORLD-TEST'
+
+// Generate username from email
+const username = Str.of('John.Doe@Example.com')
+    .lower()
+    .before('@')
+    .replace('.', '_')
+    .toString();
+// Result: 'john_doe'
+
+// Format database field to label
+const label = Str.of('user_email_address')
+    .replace('_', ' ')
+    .title()
+    .toString();
+// Result: 'User Email Address'
+
+// Conditional transformations
+const displayName = Str.of('john')
+    .when(isPremium, str => str.append(' ⭐'))
+    .ucfirst()
+    .toString();
+// Result: 'John ⭐' (if isPremium is true)
+
+// Using in template literals
+const name = Str.of('john doe').title();
+console.log(`Hello, ${name}!`); // "Hello, John Doe!"
+```
+
+All chainable methods return a `Stringable` instance, allowing you to chain as many operations as needed. Use `.toString()` or `.valueOf()` to get the final string value.
 
 ## Method Overview
 
@@ -47,6 +93,184 @@ StringX-JS provides **95+ methods** organized into the following categories:
 | **Encoding** | `toBase64`, `fromBase64` |
 | **Factories** | `createUuidsUsing`, `createUuidsNormally`, `createUlidsUsing`, `createUlidsNormally`, `createRandomStringsUsing`, `createRandomStringsNormally` |
 | **Cache Management** | `flushCache` |
+
+## Fluent Strings
+
+The `Str.of()` method returns a `Stringable` instance that allows for fluent method chaining, providing a more fluent, object-oriented interface for working with string values. This mirrors Laravel's Fluent Strings implementation.
+
+### Creating a Stringable Instance
+
+```javascript
+const str = Str.of('hello world');
+```
+
+### Chainable Methods
+
+All string manipulation methods are available for chaining:
+
+```javascript
+Str.of('  foo bar  ')
+    .trim()           // Remove whitespace
+    .camel()          // Convert to camelCase: 'fooBar'
+    .append('Test')   // Append: 'fooBarTest'
+    .slug()           // Convert to slug: 'foo-bar-test'
+    .upper();         // Uppercase: 'FOO-BAR-TEST'
+```
+
+### Getting the Final Value
+
+```javascript
+const stringable = Str.of('hello').upper();
+
+// Get string value
+stringable.toString();  // 'HELLO'
+stringable.valueOf();   // 'HELLO'
+
+// Use in string contexts
+`Result: ${stringable}`  // 'Result: HELLO'
+'Value: ' + stringable   // 'Value: HELLO'
+
+// JSON serialization
+JSON.stringify({ name: Str.of('john').title() })  // '{"name":"John"}'
+```
+
+### Utility Methods
+
+The Stringable class includes special utility methods for chaining:
+
+#### `append(...values)`
+Append one or more strings to the end.
+
+```javascript
+Str.of('Hello').append(' ', 'World', '!').toString(); // 'Hello World!'
+```
+
+#### `prepend(...values)`
+Prepend one or more strings to the beginning.
+
+```javascript
+Str.of('World').prepend('Hello ', '').toString(); // 'Hello World'
+```
+
+#### `pipe(callback)`
+Pass the string through a callback function.
+
+```javascript
+Str.of('hello')
+    .pipe(str => str.toUpperCase())
+    .toString(); // 'HELLO'
+```
+
+#### `tap(callback)`
+Execute a callback without modifying the string (useful for debugging).
+
+```javascript
+Str.of('hello')
+    .tap(val => console.log('Current value:', val))
+    .upper()
+    .toString(); // Logs 'Current value: hello', returns 'HELLO'
+```
+
+#### `when(condition, callback, defaultCallback)`
+Conditionally execute a transformation.
+
+```javascript
+Str.of('hello')
+    .when(true, str => str.upper())
+    .toString(); // 'HELLO'
+
+Str.of('hello')
+    .when(false, str => str.upper(), str => str.reverse())
+    .toString(); // 'olleh'
+```
+
+#### `unless(condition, callback, defaultCallback)`
+Execute a transformation unless the condition is true.
+
+```javascript
+Str.of('hello')
+    .unless(false, str => str.upper())
+    .toString(); // 'HELLO'
+```
+
+#### `whenEmpty(callback)`
+Execute callback only if the string is empty.
+
+```javascript
+Str.of('')
+    .whenEmpty(str => str.append('default'))
+    .toString(); // 'default'
+```
+
+#### `whenNotEmpty(callback)`
+Execute callback only if the string is not empty.
+
+```javascript
+Str.of('hello')
+    .whenNotEmpty(str => str.upper())
+    .toString(); // 'HELLO'
+```
+
+#### `isEmpty()` / `isNotEmpty()`
+Check if the string is empty or not.
+
+```javascript
+Str.of('').isEmpty();        // true
+Str.of('hello').isNotEmpty(); // true
+```
+
+#### `dump()`
+Dump the current value to console and continue chaining.
+
+```javascript
+Str.of('hello')
+    .dump()      // Logs: 'hello'
+    .upper()
+    .dump()      // Logs: 'HELLO'
+    .toString(); // 'HELLO'
+```
+
+#### `dd()`
+Dump the current value and halt execution (like Laravel's dd()).
+
+```javascript
+Str.of('hello')
+    .upper()
+    .dd();  // Logs 'HELLO' and throws error
+```
+
+### Real-World Examples
+
+```javascript
+// Clean and format user input
+const cleanInput = Str.of(userInput)
+    .trim()
+    .squish()
+    .ucfirst()
+    .toString();
+
+// Generate SEO-friendly URLs
+const url = Str.of(article.title)
+    .slug()
+    .prepend('/blog/')
+    .append('/')
+    .append(article.id)
+    .toString();
+
+// Format validation messages
+const message = Str.of(fieldName)
+    .replace('_', ' ')
+    .title()
+    .prepend('The ')
+    .append(' is required')
+    .toString();
+
+// Conditional user badges
+const displayName = Str.of(user.name)
+    .when(user.isPremium, str => str.append(' ⭐'))
+    .when(user.isVerified, str => str.append(' ✓'))
+    .toString();
+```
 
 ## Available Methods
 

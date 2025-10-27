@@ -1,7 +1,7 @@
 {
   "name": "stringx-js",
-  "version": "1.0.0",
-  "description": "A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper class with 95+ methods for case conversion, validation, manipulation, and generation.",
+  "version": "1.0.1",
+  "description": "A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper class with 95+ methods for case conversion, validation, manipulation, and generation. Now with fluent method chaining!",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,11 @@
     "pluralize",
     "validation",
     "password-generator",
-    "string-utils"
+    "string-utils",
+    "fluent",
+    "chaining",
+    "method-chaining",
+    "stringable"
   ],
   "author": "Ayman Atmeh",
   "license": "MIT",
@@ -48,6 +52,7 @@
   "files": [
     "index.js",
     "src/Str.js",
+    "src/Stringable.js",
     "src/helpers.js",
     "README.md",
     "LICENSE",
