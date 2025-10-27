@@ -1,0 +1,21 @@
+# Development files
+node_modules/
+*.log
+.DS_Store
+
+# Test files
+src/tests/
+
+# Documentation
+examples.js
+LaravelStrings.php
+
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

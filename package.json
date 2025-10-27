@@ -1,12 +1,13 @@
 {
   "name": "stringx-js",
-  "description": "A JavaScript utility library inspired by Laravel's Str helper class.",
-  "type": "module",
   "version": "1.0.0",
+  "description": "A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper class with 95+ methods for case conversion, validation, manipulation, and generation.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "node --test src/tests/*.test.js",
-    "test:watch": "node --test --watch src/tests/*.test.js"
+    "test:watch": "node --test --watch src/tests/*.test.js",
+    "prepublishOnly": "npm test"
   },
   "keywords": [
     "string",
@@ -16,19 +17,40 @@
     "helper",
     "javascript",
     "es6",
-    "string-manipulation"
+    "string-manipulation",
+    "uuid",
+    "ulid",
+    "camelcase",
+    "snakecase",
+    "kebabcase",
+    "slug",
+    "pluralize",
+    "validation",
+    "password-generator",
+    "string-utils"
   ],
   "author": "Ayman Atmeh",
   "license": "MIT",
-  "dependencies": {
-    "uuid": "^11.0.3"
-  },
-  "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/stringx-js.git"
+    "url": "git+https://github.com/yourusername/stringx-js.git"
   },
   "bugs": {
     "url": "https://github.com/yourusername/stringx-js/issues"
-  }
+  },
+  "homepage": "https://github.com/yourusername/stringx-js#readme",
+  "dependencies": {
+    "uuid": "^11.0.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "index.js",
+    "src/Str.js",
+    "src/helpers.js",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ]
 }
