@@ -3,9 +3,9 @@
  * This file demonstrates how to use StringX-JS with TypeScript
  */
 
-import Str from 'stringx-js';
-// Or with named imports:
-// import Str, { Stringable } from 'stringx-js';
+import Str, { Number } from 'stringx-js';
+// Or with default import only:
+// import Str from 'stringx-js';
 
 // ====================
 // Static Methods
@@ -248,6 +248,216 @@ const modified = text
     .toString();
 
 // ====================
+// Number Formatting with Type Safety
+// ====================
+
+// Basic number formatting
+const formatted: string = Number.format(1234567.89, 2); // "1,234,567.89"
+const percentage: string = Number.percentage(66.666, 2); // "66.67%"
+const currency: string = Number.currency(1234.56, 'EUR'); // "€1,234.56"
+
+// File size formatting
+const fileSize: string = Number.fileSize(1024 * 1024 * 5); // "5 MB"
+const largeFile: string = Number.fileSize(1024 * 1024 * 1024 * 2.5, 1); // "2.5 GB"
+
+// Human-readable numbers
+const readable: string = Number.forHumans(1500000, 1); // "1.5 million"
+const abbreviated: string = Number.abbreviate(2500000, 1); // "2.5M"
+
+// Ordinals and spelling
+const ordinal: string = Number.ordinal(42); // "42nd"
+const spelled: string = Number.spell(42); // "forty-two"
+const spellOrdinal: string = Number.spellOrdinal(3); // "third"
+
+// Parsing with type safety
+const parsed: number | null = Number.parse("1,234.56"); // 1234.56
+const parsedInt: number | null = Number.parseInt("1,234"); // 1234
+
+// Number utilities
+const clamped: number = Number.clamp(5, 1, 10); // 5
+const pairs: Array<[number, number]> = Number.pairs(10, 3); // [[0,2], [3,5], [6,8], [9,10]]
+const trimmed: number = Number.trim(1.50); // 1.5
+
+// ====================
+// Number with Locale/Currency
+// ====================
+
+// Locale configuration
+Number.useLocale('de-DE');
+const germanFormat: string = Number.format(1234.56); // "1.234,56"
+
+// Temporary locale scope
+const frenchResult: string = Number.withLocale('fr-FR', (): string => {
+    return Number.format(1234.56); // "1 234,56"
+}); // Locale reverts after
+
+// Currency configuration
+Number.useCurrency('EUR');
+const euroCurrency: string = Number.currency(100); // "€100.00"
+
+// Temporary currency scope
+const gbpResult: string = Number.withCurrency('GBP', (): string => {
+    return Number.currency(100); // "£100.00"
+}); // Currency reverts after
+
+// ====================
+// Real-World Number Examples
+// ====================
+
+interface AnalyticsDashboard {
+    users: number;
+    revenue: number;
+    storageUsed: number;
+    growthRate: number;
+}
+
+class DashboardFormatter {
+    static formatStats(stats: AnalyticsDashboard): {
+        users: string;
+        revenue: string;
+        storage: string;
+        growth: string;
+    } {
+        return {
+            users: Number.abbreviate(stats.users, 1),
+            revenue: Number.currency(stats.revenue),
+            storage: Number.fileSize(stats.storageUsed, 1),
+            growth: Number.percentage(stats.growthRate, 2)
+        };
+    }
+
+    static formatRanking(position: number): string {
+        return `You ranked ${Number.ordinal(position)}!`;
+    }
+}
+
+// Usage
+const dashboard: AnalyticsDashboard = {
+    users: 1234567,
+    revenue: 9876543.21,
+    storageUsed: 1024 * 1024 * 523.7,
+    growthRate: 15.75
+};
+
+const formattedStats = DashboardFormatter.formatStats(dashboard);
+// {
+//   users: "1.2M",
+//   revenue: "$9,876,543.21",
+//   storage: "523.7 MB",
+//   growth: "15.75%"
+// }
+
+interface PricingTier {
+    name: string;
+    price: number;
+    storage: number;
+    users: number;
+}
+
+class PricingFormatter {
+    static format(tier: PricingTier): {
+        price: string;
+        storage: string;
+        users: string;
+    } {
+        return {
+            price: Number.currency(tier.price),
+            storage: Number.fileSize(tier.storage * 1024 * 1024 * 1024),
+            users: tier.users === Infinity
+                ? 'Unlimited'
+                : Number.forHumans(tier.users)
+        };
+    }
+
+    static formatDiscount(original: number, discount: number): {
+        original: string;
+        save: string;
+        final: string;
+    } {
+        return {
+            original: Number.currency(original),
+            save: Number.percentage(discount),
+            final: Number.currency(original * (1 - discount / 100))
+        };
+    }
+}
+
+const tier: PricingTier = {
+    name: 'Enterprise',
+    price: 99.99,
+    storage: 100, // GB
+    users: 50
+};
+
+const pricingInfo = PricingFormatter.format(tier);
+// {
+//   price: "$99.99",
+//   storage: "100 GB",
+//   users: "50"
+// }
+
+// ====================
+// Combining Str and Number
+// ====================
+
+interface DataPoint {
+    label: string;
+    value: number;
+}
+
+function formatDataPoint(point: DataPoint, format: 'currency' | 'percentage' | 'abbreviated'): string {
+    const formattedLabel: string = Str.of(point.label)
+        .trim()
+        .title()
+        .toString();
+
+    let formattedValue: string;
+    switch (format) {
+        case 'currency':
+            formattedValue = Number.currency(point.value);
+            break;
+        case 'percentage':
+            formattedValue = Number.percentage(point.value, 1);
+            break;
+        case 'abbreviated':
+            formattedValue = Number.abbreviate(point.value, 1);
+            break;
+    }
+
+    return `${formattedLabel}: ${formattedValue}`;
+}
+
+// Usage
+const salesData: DataPoint = {
+    label: 'total_revenue',
+    value: 1234567.89
+};
+
+const formatted1: string = formatDataPoint(salesData, 'currency');
+// "Total Revenue: $1,234,567.89"
+
+const formatted2: string = formatDataPoint(
+    { label: 'conversion_rate', value: 3.45 },
+    'percentage'
+); // "Conversion Rate: 3.5%"
+
+// ====================
+// Type-Safe Number Utilities
+// ====================
+
+type NumberFormatter = (value: number) => string;
+
+const createCurrencyFormatter = (currency: string, precision: number = 2): NumberFormatter => {
+    return (value: number): string => Number.currency(value, currency, null, precision);
+};
+
+const usdFormatter: NumberFormatter = createCurrencyFormatter('USD');
+const eurFormatter: NumberFormatter = createCurrencyFormatter('EUR');
+
+const price1: string = usdFormatter(1234.56); // "$1,234.56"
+const price2: string = eurFormatter(1234.56); // "€1,234.56"
+
+// ====================
 // Export for Testing
 // ====================
 
@@ -255,5 +465,9 @@ export {
     formatUserName,
     ApiErrorFormatter,
     createSlugger,
-    processText
+    processText,
+    DashboardFormatter,
+    PricingFormatter,
+    formatDataPoint,
+    createCurrencyFormatter
 };

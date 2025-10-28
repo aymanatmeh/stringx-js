@@ -2,11 +2,34 @@
 
 A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper class. This package provides a wide range of methods for working with strings in a clean and intuitive way.
 
+[![Demo](https://img.shields.io/badge/🎮_Live_Demo-stringx--js.com-blue?style=for-the-badge)](https://www.stringx-js.com/)
+[![npm version](https://img.shields.io/npm/v/stringx-js.svg?style=flat-square)](https://www.npmjs.com/package/stringx-js)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+
 ## Installation
 
 ```bash
 npm install stringx-js
 ```
+
+## 🎮 Demo & Playground
+
+**Try StringX-JS online without installing anything!**
+
+🌐 **[stringx-js.com](https://www.stringx-js.com/)** - Interactive playground with:
+- ✨ **Live Editor** - Test all Str and Number methods in real-time
+- 🔗 **Chain Builder** - Visual tool to build fluent method chains
+- 📚 **Interactive Examples** - Browse and run code snippets
+- 🎯 **Method Explorer** - Discover all 95+ string methods with live demos
+- 💡 **TypeScript Support** - See type hints and autocomplete in action
+
+Perfect for:
+- 🚀 Quick experimentation before installing
+- 📖 Learning the API interactively
+- 🔍 Discovering new methods
+- 🎓 Teaching and demonstrations
+
+**[Launch Playground →](https://www.stringx-js.com/)**
 
 ## TypeScript Support
 
@@ -1366,6 +1389,233 @@ Remove all strings from the casing caches.
 
 ```javascript
 Str.flushCache();
+```
+
+## Number Formatting (`Number` Class)
+
+StringX-JS includes a powerful `Number` class for formatting and manipulating numbers, inspired by Laravel's Number helper. All methods are static and can be used directly.
+
+### Import
+
+```javascript
+import { Number } from 'stringx-js';
+```
+
+### Number Formatting
+
+#### `format(number, precision?, maxPrecision?, locale?)`
+
+Format numbers with thousand separators according to the current locale.
+
+```javascript
+Number.format(1234.567);        // "1,234.567"
+Number.format(1234.567, 2);     // "1,234.57"
+Number.format(1234.5, null, 2); // "1,234.5" (max 2 decimals)
+```
+
+#### `percentage(number, precision?, maxPrecision?, locale?)`
+
+Convert numbers to percentage format.
+
+```javascript
+Number.percentage(50);          // "50%"
+Number.percentage(66.666, 2);   // "66.67%"
+Number.percentage(33.333, 1);   // "33.3%"
+```
+
+#### `currency(number, currency?, locale?, precision?)`
+
+Format numbers as currency.
+
+```javascript
+Number.currency(1234.56);             // "$1,234.56"
+Number.currency(1234.56, 'EUR');      // "€1,234.56"
+Number.currency(1234.5, 'USD', null, 2); // "$1,234.50"
+```
+
+#### `fileSize(bytes, precision?, maxPrecision?)`
+
+Convert bytes to human-readable file sizes.
+
+```javascript
+Number.fileSize(1024);              // "1 KB"
+Number.fileSize(1536, 2);           // "1.50 KB"
+Number.fileSize(1024 * 1024 * 5);   // "5 MB"
+Number.fileSize(1024 * 1024 * 1024); // "1 GB"
+```
+
+### Human-Readable Numbers
+
+#### `forHumans(number, precision?, maxPrecision?, abbreviate?)`
+
+Convert numbers to human-readable format.
+
+```javascript
+Number.forHumans(1000);              // "1 thousand"
+Number.forHumans(1500000);           // "1.5 million"
+Number.forHumans(1000000000);        // "1 billion"
+Number.forHumans(1000, 0, null, true); // "1K" (abbreviated)
+```
+
+#### `abbreviate(number, precision?, maxPrecision?)`
+
+Abbreviate large numbers (K, M, B, T, Q).
+
+```javascript
+Number.abbreviate(1000);        // "1K"
+Number.abbreviate(1500000);     // "2M"
+Number.abbreviate(1500000, 1);  // "1.5M"
+Number.abbreviate(2500000000);  // "3B"
+```
+
+### Spelling and Ordinals
+
+#### `spell(number, locale?, after?, until?)`
+
+Spell out numbers in words.
+
+```javascript
+Number.spell(42);               // "forty-two"
+Number.spell(100);              // "one hundred"
+Number.spell(5, null, 10);      // "5" (don't spell, 5 <= 10)
+Number.spell(15, null, 10);     // "fifteen" (spell, 15 > 10)
+```
+
+#### `ordinal(number, locale?)`
+
+Convert numbers to ordinal format (1st, 2nd, 3rd, etc.).
+
+```javascript
+Number.ordinal(1);    // "1st"
+Number.ordinal(22);   // "22nd"
+Number.ordinal(103);  // "103rd"
+```
+
+#### `spellOrdinal(number, locale?)`
+
+Spell out ordinal numbers.
+
+```javascript
+Number.spellOrdinal(1);   // "first"
+Number.spellOrdinal(22);  // "twenty-second"
+Number.spellOrdinal(42);  // "forty-second"
+```
+
+### Number Parsing
+
+#### `parse(string, locale?)`
+
+Parse formatted number strings.
+
+```javascript
+Number.parse("1,234.56");  // 1234.56
+Number.parse("1 234.56");  // 1234.56
+Number.parse("invalid");   // null
+```
+
+#### `parseInt(string, locale?)`
+
+Parse strings to integers.
+
+```javascript
+Number.parseInt("1,234");  // 1234
+Number.parseInt("123.99"); // 123
+```
+
+#### `parseFloat(string, locale?)`
+
+Parse strings to floats.
+
+```javascript
+Number.parseFloat("1,234.56"); // 1234.56
+```
+
+### Number Utilities
+
+#### `clamp(number, min, max)`
+
+Clamp a number between min and max values.
+
+```javascript
+Number.clamp(5, 1, 10);   // 5
+Number.clamp(0, 1, 10);   // 1
+Number.clamp(15, 1, 10);  // 10
+```
+
+#### `pairs(to, by, start?, offset?)`
+
+Generate pairs of min/max values for pagination or ranges.
+
+```javascript
+Number.pairs(10, 3);
+// [[0, 2], [3, 5], [6, 8], [9, 10]]
+
+Number.pairs(10, 3, 1);
+// [[1, 3], [4, 6], [7, 9], [10, 10]]
+```
+
+#### `trim(number)`
+
+Remove trailing zeros from decimals.
+
+```javascript
+Number.trim(1.50);   // 1.5
+Number.trim(1.00);   // 1
+Number.trim(1.230);  // 1.23
+```
+
+### Locale and Currency Settings
+
+#### `useLocale(locale)` / `defaultLocale()`
+
+Set or get the default locale.
+
+```javascript
+Number.useLocale('de-DE');
+Number.format(1234.56); // "1.234,56" (German format)
+
+Number.defaultLocale(); // "de-DE"
+```
+
+#### `useCurrency(currency)` / `defaultCurrency()`
+
+Set or get the default currency.
+
+```javascript
+Number.useCurrency('EUR');
+Number.currency(1234.56); // "€1,234.56"
+
+Number.defaultCurrency(); // "EUR"
+```
+
+#### `withLocale(locale, callback)` / `withCurrency(currency, callback)`
+
+Temporarily use a different locale or currency for a callback.
+
+```javascript
+// Temporarily use German locale
+Number.withLocale('de-DE', () => {
+    return Number.format(1234.56); // "1.234,56"
+});
+// Locale reverts to previous after callback
+
+// Temporarily use Euro currency
+Number.withCurrency('EUR', () => {
+    return Number.currency(100); // "€100.00"
+});
+// Currency reverts to previous after callback
+```
+
+### TypeScript Support
+
+The `Number` class includes full TypeScript support with comprehensive type definitions:
+
+```typescript
+import { Number } from 'stringx-js';
+
+const formatted: string = Number.format(1234.567, 2);
+const parsed: number | null = Number.parse("1,234");
+const pairs: Array<[number, number]> = Number.pairs(10, 3);
 ```
 
 ## Testing

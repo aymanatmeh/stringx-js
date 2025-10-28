@@ -8,7 +8,8 @@
  */
 
 import Str from './src/Str';
+import Number from './src/Number';
 import { Stringable } from './src/Stringable';
 
-export { Stringable };
+export { Stringable, Number };
 export default Str;
