@@ -8,6 +8,34 @@ A comprehensive JavaScript string manipulation library inspired by Laravel's Str
 npm install stringx-js
 ```
 
+## TypeScript Support
+
+StringX-JS includes full TypeScript type definitions out of the box! No need to install separate `@types` packages.
+
+```typescript
+import Str from 'stringx-js';
+
+// Full type safety and IntelliSense support
+const result: string = Str.of('hello_world')
+    .camel()
+    .append('Test')
+    .toString();
+
+// Type inference works automatically
+const slug = Str.slug('Hello World'); // Type: string
+const isValid = Str.isUuid(value);     // Type: boolean
+const matches = Str.matchAll(/\d+/g, text); // Type: string[]
+```
+
+TypeScript features:
+- ✅ Full type definitions for all methods
+- ✅ Generic type support for callbacks
+- ✅ Proper return type inference
+- ✅ IntelliSense/autocomplete in VS Code
+- ✅ Compile-time type checking
+
+See [examples/typescript-example.ts](examples/typescript-example.ts) for comprehensive TypeScript usage examples.
+
 ## Usage
 
 ### Static Methods
@@ -270,6 +298,302 @@ const displayName = Str.of(user.name)
     .when(user.isPremium, str => str.append(' ⭐'))
     .when(user.isVerified, str => str.append(' ✓'))
     .toString();
+```
+
+## Advanced Usage
+
+### Custom Transformations with `pipe()`
+
+The `pipe()` method allows you to pass the string through any custom function, enabling unlimited flexibility:
+
+```javascript
+// Complex email masking
+const maskedEmail = Str.of('john.doe@example.com')
+    .pipe(email => {
+        const [name, domain] = email.split('@');
+        const maskedName = name[0] + '*'.repeat(name.length - 1);
+        return `${maskedName}@${domain}`;
+    })
+    .toString(); // 'j*******@example.com'
+
+// Custom business logic
+const processedText = Str.of('user_input_123')
+    .pipe(str => str.replace(/\d+/g, ''))
+    .pipe(str => str.toUpperCase())
+    .pipe(str => customBusinessLogic(str))
+    .toString();
+
+// Integration with external libraries
+import slugify from 'some-slugify-lib';
+
+const slug = Str.of(title)
+    .trim()
+    .pipe(str => slugify(str, { strict: true }))
+    .toString();
+```
+
+### Debugging with `tap()` and `dump()`
+
+Debug your transformation chains without breaking the flow:
+
+```javascript
+// Using tap() to inspect values at each step
+const result = Str.of('  HELLO_WORLD  ')
+    .tap(val => console.log('Original:', val))           // Original:   HELLO_WORLD
+    .trim()
+    .tap(val => console.log('After trim:', val))         // After trim: HELLO_WORLD
+    .lower()
+    .tap(val => console.log('After lower:', val))        // After lower: hello_world
+    .camel()
+    .tap(val => console.log('After camel:', val))        // After camel: helloWorld
+    .toString();
+
+// Using dump() for quick logging
+const processed = Str.of(userInput)
+    .trim()
+    .dump()        // Logs the value
+    .squish()
+    .dump()        // Logs again
+    .ucfirst()
+    .toString();
+
+// Conditional debugging
+const debugMode = process.env.DEBUG === 'true';
+
+const output = Str.of(data)
+    .trim()
+    .when(debugMode, str => str.dump())  // Only logs in debug mode
+    .camel()
+    .toString();
+```
+
+### Advanced Conditional Logic
+
+Build complex conditional transformation chains:
+
+```javascript
+// Multiple conditions with fallbacks
+const formatUsername = (name, options = {}) => {
+    return Str.of(name)
+        .trim()
+        .lower()
+        .when(options.removeSpaces, str => str.replace(' ', ''))
+        .when(options.maxLength, (str) => str.limit(options.maxLength, ''))
+        .whenEmpty(str => str.append('anonymous'))
+        .unless(options.allowSpecialChars, str => str.replace(/[^a-z0-9]/g, ''))
+        .when(
+            str => str.length() < 3,
+            str => str.padRight(3, 'x'),
+            str => str  // else, return unchanged
+        )
+        .toString();
+};
+
+// Nested conditions
+const displayPrice = Str.of(price.toString())
+    .when(
+        currency === 'USD',
+        str => str.prepend('$'),
+        str => str.append(` ${currency}`)
+    )
+    .when(
+        isDiscounted,
+        str => str.append(' (SALE!)').upper()
+    )
+    .whenNotEmpty(str => str.wrap('<span class="price">', '</span>'))
+    .toString();
+
+// Condition based on string content
+const processApiResponse = Str.of(response)
+    .when(
+        str => str.contains('error'),
+        str => str.upper().prepend('⚠️ '),
+        str => str.prepend('✅ ')
+    )
+    .when(
+        str => str.length() > 100,
+        str => str.limit(100)
+    )
+    .toString();
+```
+
+### Working with APIs and Data Transformation
+
+Transform API responses and data structures:
+
+```javascript
+// Transform API error messages
+const formatApiError = (errorCode) => {
+    return Str.of(errorCode)
+        .upper()                                    // ERROR_USER_NOT_FOUND
+        .replace('_', ' ')                          // ERROR USER NOT FOUND
+        .after('ERROR ')                            // USER NOT FOUND
+        .lower()                                    // user not found
+        .ucfirst()                                  // User not found
+        .append('.')                                // User not found.
+        .toString();
+};
+
+// Generate API endpoints
+const buildEndpoint = (resource, id, action) => {
+    return Str.of(resource)
+        .plural()                                   // users
+        .kebab()                                    // users (already kebab)
+        .prepend('/api/v1/')                        // /api/v1/users
+        .when(id, str => str.append(`/${id}`))      // /api/v1/users/123
+        .when(action, str => str.append(`/${action}`)) // /api/v1/users/123/activate
+        .finish('/')                                // /api/v1/users/123/activate/
+        .toString();
+};
+
+// Parse and format JSON paths
+const formatJsonPath = Str.of('data.user.profile.email')
+    .explode('.')                                   // Would return array if we had explode()
+    .pipe(parts => parts.join('.'))                 // Using pipe as alternative
+    .replace('.', ' → ')                            // data → user → profile → email
+    .title()                                        // Data → User → Profile → Email
+    .toString();
+```
+
+### Text Processing and Sanitization
+
+Advanced text cleaning and formatting:
+
+```javascript
+// Clean and format user-generated content
+const sanitizeContent = (content) => {
+    return Str.of(content)
+        .trim()
+        .squish()                                   // Remove extra whitespace
+        .replace(/[<>]/g, '')                       // Remove potential HTML
+        .deduplicate(['.', '!', '?'])               // Remove duplicate punctuation
+        .limit(500)                                 // Limit length
+        .when(
+            str => !str.test(/[.!?]$/),
+            str => str.append('...')                // Add ellipsis if needed
+        )
+        .toString();
+};
+
+// Extract and format hashtags
+const formatHashtags = (text) => {
+    return Str.of(text)
+        .matchAll(/#\w+/g)
+        .pipe(tags => tags.map(tag =>
+            Str.of(tag)
+                .chopStart('#')
+                .lower()
+                .toString()
+        ))
+        .pipe(tags => tags.join(', '));
+};
+
+// Generate readable IDs
+const generateReadableId = (text) => {
+    return Str.of(text)
+        .slug()
+        .append('-')
+        .append(Str.random(8).lower())
+        .toString(); // 'my-awesome-post-a3f7d9e2'
+};
+```
+
+### Combining Static and Fluent Methods
+
+Mix both approaches for optimal code:
+
+```javascript
+// Use static methods for simple checks
+if (Str.contains(email, '@')) {
+    // Use fluent for complex transformations
+    const formatted = Str.of(email)
+        .lower()
+        .trim()
+        .before('@')
+        .toString();
+}
+
+// Static for generation, fluent for formatting
+const userId = Str.uuid();
+const formattedId = Str.of(userId)
+    .upper()
+    .replace(/-/g, '')
+    .limit(12)
+    .toString();
+
+// Create reusable transformation functions
+const toSlug = (text) => Str.of(text).slug().toString();
+const toHandle = (name) => Str.of(name).lower().replace(' ', '').prepend('@').toString();
+
+const slug = toSlug('Hello World');      // 'hello-world'
+const handle = toHandle('John Doe');     // '@johndoe'
+```
+
+### Error Handling Patterns
+
+Handle edge cases gracefully:
+
+```javascript
+// Safe transformations with fallbacks
+const safeFormat = (input, fallback = 'N/A') => {
+    return Str.of(input ?? '')
+        .whenEmpty(str => str.append(fallback))
+        .trim()
+        .toString();
+};
+
+// Validate and transform
+const processUsername = (username) => {
+    const processed = Str.of(username)
+        .trim()
+        .lower()
+        .toString();
+
+    // Validate using static methods
+    if (!Str.isMatch(/^[a-z0-9_]{3,20}$/, processed)) {
+        throw new Error('Invalid username format');
+    }
+
+    return processed;
+};
+
+// Try-catch with fluent chains
+try {
+    const result = Str.of(jsonString)
+        .pipe(str => {
+            if (!Str.isJson(str)) throw new Error('Invalid JSON');
+            return JSON.parse(str);
+        })
+        .pipe(obj => obj.data.value)
+        .toString();
+} catch (error) {
+    console.error('Processing failed:', error.message);
+}
+```
+
+### Performance Optimization
+
+Tips for optimal performance:
+
+```javascript
+// Cache Stringable instances for repeated use
+const formatter = Str.of(template);
+const results = data.map(item =>
+    formatter.replace('{name}', item.name).toString()
+);
+
+// Use static methods for single operations
+const lower = Str.lower(text);  // Faster than Str.of(text).lower().toString()
+
+// Chain when doing multiple operations
+const processed = Str.of(text)  // Better than multiple Str calls
+    .trim()
+    .lower()
+    .camel()
+    .toString();
+
+// Clear caches if processing lots of unique strings
+Str.flushCache();
 ```
 
 ## Available Methods
@@ -1065,3 +1389,47 @@ MIT
 ## Credits
 
 Inspired by Laravel's [Str helper](https://laravel.com/docs/strings).
+
+## Autocomplete & IntelliSense
+
+StringX-JS includes full autocomplete support in all modern IDEs! 🎯
+
+### What You Get
+
+When you type `Str.` you'll see **all 95+ methods** with:
+- ✅ Method names and descriptions
+- ✅ Parameter types and hints
+- ✅ Return type information
+- ✅ Inline documentation
+
+```javascript
+import Str from 'stringx-js';
+
+// Type "Str." and see autocomplete:
+Str.camel()      // ← Shows: (value: string): string
+Str.contains()   // ← Shows: (haystack: string, needles: string | string[]): boolean
+Str.uuid()       // ← Shows: (): string
+// ... 92+ more methods with autocomplete
+```
+
+### Fluent Chaining Autocomplete
+
+```javascript
+// Type ".of('text')." to see all chainable methods:
+Str.of('hello')
+    .upper()     // ← Autocomplete shows this
+    .trim()      // ← And this
+    .camel()     // ← And this
+    .toString(); // ← And this
+```
+
+### Works Everywhere
+
+- ✅ **VS Code** - Full IntelliSense support
+- ✅ **WebStorm/PhpStorm** - Smart autocomplete
+- ✅ **JavaScript files** - JSDoc-based autocomplete
+- ✅ **TypeScript files** - Full type checking
+- ✅ **Zero configuration** - Works automatically
+
+See [AUTOCOMPLETE-GUIDE.md](AUTOCOMPLETE-GUIDE.md) for details and [autocomplete-demo.js](autocomplete-demo.js) for a hands-on demonstration.
+

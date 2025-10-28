@@ -1,9 +1,10 @@
 {
   "name": "stringx-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper class with 95+ methods for case conversion, validation, manipulation, and generation. Now with fluent method chaining!",
   "type": "module",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "node --test src/tests/*.test.js",
     "test:watch": "node --test --watch src/tests/*.test.js",
@@ -16,6 +17,7 @@
     "utility",
     "helper",
     "javascript",
+    "typescript",
     "es6",
     "string-manipulation",
     "uuid",
@@ -51,8 +53,11 @@
   },
   "files": [
     "index.js",
+    "index.d.ts",
     "src/Str.js",
+    "src/Str.d.ts",
     "src/Stringable.js",
+    "src/Stringable.d.ts",
     "src/helpers.js",
     "README.md",
     "LICENSE",

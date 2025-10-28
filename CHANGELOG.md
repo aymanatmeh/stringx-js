@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2024-10-28
+
+### Added
+- **🎯 Full TypeScript support with complete type definitions**
+  - `index.d.ts` - Main entry point type definitions
+  - `src/Str.d.ts` - Complete types for all 95+ static methods
+  - `src/Stringable.d.ts` - Complete types for all 95+ fluent methods
+  - Added `"types": "index.d.ts"` to package.json
+- **✨ IDE Autocomplete & IntelliSense support**
+  - Full autocomplete when typing `Str.` (shows all 95+ methods)
+  - Parameter hints with type information
+  - Return type inference
+  - Hover documentation with JSDoc comments
+  - Works in JavaScript (.js) and TypeScript (.ts) files
+  - Zero configuration required - works automatically after npm install
+- **📁 Better project organization**
+  - Created `examples/` folder for all example files
+  - Moved `examples.js` → `examples/examples.js`
+  - Moved `chaining-examples.js` → `examples/chaining-examples.js`
+  - Added `examples/typescript-example.ts` with comprehensive TypeScript examples
+  - Updated `.npmignore` to exclude examples folder
+
+### Changed
+- **Updated terminology to match Laravel**
+  - Changed "Stringable API" to "Fluent Strings" in README
+  - Aligned documentation with Laravel's official terminology
+- **Enhanced type definitions**
+  - Added JSDoc comments to key methods for better IDE hover documentation
+  - Improved parameter descriptions and examples
+- **Package metadata**
+  - Added "typescript" keyword for better npm discoverability
+  - Updated files array to include all TypeScript definition files
+
+
+### Developer Experience
+- ✅ Full IntelliSense in VS Code
+- ✅ Smart autocomplete in WebStorm/PhpStorm
+- ✅ Type checking in TypeScript projects
+- ✅ Parameter hints in all modern IDEs
+- ✅ Hover documentation with examples
+- ✅ Go to definition support
+- ✅ Works in both .js and .ts files
+
 ## [1.0.1] - 2024-10-27
 
 ### Added
@@ -71,5 +114,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ES6 module support
 - MIT License
 
+[1.0.2]: https://github.com/yourusername/stringx-js/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/yourusername/stringx-js/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/yourusername/stringx-js/releases/tag/v1.0.0
