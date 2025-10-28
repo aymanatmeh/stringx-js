@@ -306,21 +306,144 @@ describe('Str Helper Tests', () => {
     });
 
     describe('plural', () => {
-        test('returns plural form', () => {
+        test('returns regular plurals', () => {
             assert.strictEqual(Str.plural('car'), 'cars');
-            assert.strictEqual(Str.plural('child'), 'childs');
+            assert.strictEqual(Str.plural('book'), 'books');
+            assert.strictEqual(Str.plural('house'), 'houses');
+        });
+
+        test('handles words ending in -y', () => {
             assert.strictEqual(Str.plural('city'), 'cities');
+            assert.strictEqual(Str.plural('baby'), 'babies');
+            assert.strictEqual(Str.plural('day'), 'days'); // vowel + y
+        });
+
+        test('handles words ending in -s, -sh, -ch, -x, -z', () => {
+            assert.strictEqual(Str.plural('class'), 'classes');
+            assert.strictEqual(Str.plural('dish'), 'dishes');
+            assert.strictEqual(Str.plural('church'), 'churches');
+            assert.strictEqual(Str.plural('box'), 'boxes');
+            assert.strictEqual(Str.plural('buzz'), 'buzzes');
+        });
+
+        test('handles words ending in -o', () => {
+            assert.strictEqual(Str.plural('hero'), 'heroes');
+            assert.strictEqual(Str.plural('potato'), 'potatoes');
+            assert.strictEqual(Str.plural('photo'), 'photos'); // vowel + o
+            assert.strictEqual(Str.plural('radio'), 'radios'); // vowel + o
+        });
+
+        test('handles words ending in -f and -fe', () => {
+            assert.strictEqual(Str.plural('wolf'), 'wolves');
+            assert.strictEqual(Str.plural('knife'), 'knives');
+            assert.strictEqual(Str.plural('life'), 'lives');
+        });
+
+        test('handles irregular plurals', () => {
+            assert.strictEqual(Str.plural('man'), 'men');
+            assert.strictEqual(Str.plural('woman'), 'women');
+            assert.strictEqual(Str.plural('child'), 'children');
+            assert.strictEqual(Str.plural('person'), 'people');
+            assert.strictEqual(Str.plural('tooth'), 'teeth');
+            assert.strictEqual(Str.plural('foot'), 'feet');
+            assert.strictEqual(Str.plural('mouse'), 'mice');
+            assert.strictEqual(Str.plural('goose'), 'geese');
+        });
+
+        test('handles uncountable words', () => {
+            assert.strictEqual(Str.plural('equipment'), 'equipment');
+            assert.strictEqual(Str.plural('information'), 'information');
+            assert.strictEqual(Str.plural('fish'), 'fish');
+            assert.strictEqual(Str.plural('sheep'), 'sheep');
+            assert.strictEqual(Str.plural('deer'), 'deer');
+        });
+
+        test('handles Latin/Greek plurals', () => {
+            assert.strictEqual(Str.plural('radius'), 'radii');
+            assert.strictEqual(Str.plural('crisis'), 'crises');
+            assert.strictEqual(Str.plural('analysis'), 'analyses');
+            assert.strictEqual(Str.plural('criterion'), 'criteria');
+            assert.strictEqual(Str.plural('phenomenon'), 'phenomena');
+        });
+
+        test('matches case', () => {
+            assert.strictEqual(Str.plural('Child'), 'Children');
+            assert.strictEqual(Str.plural('CHILD'), 'CHILDREN');
+            assert.strictEqual(Str.plural('Man'), 'Men');
+            assert.strictEqual(Str.plural('PERSON'), 'PEOPLE');
         });
 
         test('returns singular when count is 1', () => {
             assert.strictEqual(Str.plural('car', 1), 'car');
+            assert.strictEqual(Str.plural('child', 1), 'child');
+        });
+
+        test('handles empty strings', () => {
+            assert.strictEqual(Str.plural(''), '');
         });
     });
 
     describe('singular', () => {
-        test('returns singular form', () => {
+        test('returns regular singulars', () => {
             assert.strictEqual(Str.singular('cars'), 'car');
+            assert.strictEqual(Str.singular('books'), 'book');
+            assert.strictEqual(Str.singular('houses'), 'house');
+        });
+
+        test('handles words ending in -ies', () => {
             assert.strictEqual(Str.singular('cities'), 'city');
+            assert.strictEqual(Str.singular('babies'), 'baby');
+        });
+
+        test('handles words ending in -es', () => {
+            assert.strictEqual(Str.singular('classes'), 'class');
+            assert.strictEqual(Str.singular('dishes'), 'dish');
+            assert.strictEqual(Str.singular('churches'), 'church');
+            assert.strictEqual(Str.singular('boxes'), 'box');
+            assert.strictEqual(Str.singular('heroes'), 'hero');
+        });
+
+        test('handles words ending in -ves', () => {
+            assert.strictEqual(Str.singular('wolves'), 'wolf');
+            assert.strictEqual(Str.singular('knives'), 'knife');
+            assert.strictEqual(Str.singular('lives'), 'life');
+        });
+
+        test('handles irregular singulars', () => {
+            assert.strictEqual(Str.singular('men'), 'man');
+            assert.strictEqual(Str.singular('women'), 'woman');
+            assert.strictEqual(Str.singular('children'), 'child');
+            assert.strictEqual(Str.singular('people'), 'person');
+            assert.strictEqual(Str.singular('teeth'), 'tooth');
+            assert.strictEqual(Str.singular('feet'), 'foot');
+            assert.strictEqual(Str.singular('mice'), 'mouse');
+            assert.strictEqual(Str.singular('geese'), 'goose');
+        });
+
+        test('handles uncountable words', () => {
+            assert.strictEqual(Str.singular('equipment'), 'equipment');
+            assert.strictEqual(Str.singular('information'), 'information');
+            assert.strictEqual(Str.singular('fish'), 'fish');
+            assert.strictEqual(Str.singular('sheep'), 'sheep');
+        });
+
+        test('handles Latin/Greek singulars', () => {
+            assert.strictEqual(Str.singular('radii'), 'radius');
+            assert.strictEqual(Str.singular('crises'), 'crisis');
+            assert.strictEqual(Str.singular('analyses'), 'analysis');
+            assert.strictEqual(Str.singular('criteria'), 'criterion');
+            assert.strictEqual(Str.singular('phenomena'), 'phenomenon');
+        });
+
+        test('matches case', () => {
+            assert.strictEqual(Str.singular('Children'), 'Child');
+            assert.strictEqual(Str.singular('CHILDREN'), 'CHILD');
+            assert.strictEqual(Str.singular('Men'), 'Man');
+            assert.strictEqual(Str.singular('PEOPLE'), 'PERSON');
+        });
+
+        test('handles empty strings', () => {
+            assert.strictEqual(Str.singular(''), '');
         });
     });
 

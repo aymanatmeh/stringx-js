@@ -34,7 +34,7 @@ TypeScript features:
 - ✅ IntelliSense/autocomplete in VS Code
 - ✅ Compile-time type checking
 
-See [examples/typescript-example.ts](examples/typescript-example.ts) for comprehensive TypeScript usage examples.
+See [examples/typescript-example.ts](https://github.com/aymanatmeh/stringx-js/blob/main/examples/typescript-example.ts) for comprehensive TypeScript usage examples.
 
 ## Usage
 
@@ -1430,6 +1430,4 @@ Str.of('hello')
 - ✅ **JavaScript files** - JSDoc-based autocomplete
 - ✅ **TypeScript files** - Full type checking
 - ✅ **Zero configuration** - Works automatically
-
-See [AUTOCOMPLETE-GUIDE.md](AUTOCOMPLETE-GUIDE.md) for details and [autocomplete-demo.js](autocomplete-demo.js) for a hands-on demonstration.
 

@@ -334,8 +334,8 @@ class Str {
         const masked = maskChar.repeat(segment.length);
 
         return stringArray.slice(0, startIndex).join('') +
-               masked +
-               stringArray.slice(startIndex + segment.length).join('');
+            masked +
+            stringArray.slice(startIndex + segment.length).join('');
     }
 
     /**
@@ -385,8 +385,8 @@ class Str {
         const rightPad = padLength - leftPad;
 
         return pad.repeat(leftPad).substring(0, leftPad) +
-               value +
-               pad.repeat(rightPad).substring(0, rightPad);
+            value +
+            pad.repeat(rightPad).substring(0, rightPad);
     }
 
     /**
@@ -538,19 +538,122 @@ class Str {
     }
 
     /**
+     * Match the case of the target string to the case of the original string.
+     * @private
+     */
+    static matchCase(target, original) {
+        if (!original || !target) return target;
+
+        // Check if original is all uppercase
+        if (original === original.toUpperCase() && original !== original.toLowerCase()) {
+            return target.toUpperCase();
+        }
+
+        // Check if original starts with uppercase (Title Case)
+        if (original[0] === original[0].toUpperCase() && original[0] !== original[0].toLowerCase()) {
+            return target.charAt(0).toUpperCase() + target.slice(1).toLowerCase();
+        }
+
+        // Default to lowercase
+        return target.toLowerCase();
+    }
+
+    /**
      * Get the singular form of an English word.
      */
     static singular(value) {
-        // Simple singularization rules
-        if (value.endsWith('ies')) {
-            return value.slice(0, -3) + 'y';
+        if (!value || value.length === 0) return value;
+
+        const lower = value.toLowerCase();
+
+        // Uncountable words - return as-is
+        const uncountable = [
+            'equipment', 'information', 'rice', 'money', 'species',
+            'series', 'fish', 'sheep', 'moose', 'deer', 'news',
+            'pants', 'scissors', 'trousers', 'glasses', 'police',
+        ];
+        if (uncountable.includes(lower)) {
+            return value;
         }
-        if (value.endsWith('es')) {
-            return value.slice(0, -2);
+
+        // Irregular singulars
+        const irregular = {
+            'men': 'man',
+            'women': 'woman',
+            'children': 'child',
+            'teeth': 'tooth',
+            'feet': 'foot',
+            'people': 'person',
+            'mice': 'mouse',
+            'geese': 'goose',
+            'oxen': 'ox',
+            'criteria': 'criterion',
+            'phenomena': 'phenomenon',
+            'analyses': 'analysis',
+            'bases': 'basis',
+            'diagnoses': 'diagnosis',
+            'theses': 'thesis'
+        };
+
+        if (irregular[lower]) {
+            return this.matchCase(irregular[lower], value);
         }
-        if (value.endsWith('s') && !value.endsWith('ss')) {
-            return value.slice(0, -1);
+
+        // Words ending in -ves
+        if (lower.endsWith('ves')) {
+            if (lower.endsWith('ives')) {
+                return this.matchCase(value.slice(0, -4) + 'ife', value);  // knives -> knife (remove 'ives', add 'ife')
+            }
+            return this.matchCase(value.slice(0, -3) + 'f', value);  // wolves -> wolf
         }
+
+        // Words ending in -ies
+        if (lower.endsWith('ies') && lower.length > 3) {
+            return this.matchCase(value.slice(0, -3) + 'y', value);  // cities -> city
+        }
+
+        // Words ending in -i (Latin/Greek)
+        if (lower.endsWith('i') && lower.length > 2) {
+            return this.matchCase(value.slice(0, -1) + 'us', value);  // radii -> radius
+        }
+
+        // Words ending in -ses (Greek plurals: -is becomes -es)
+        // Only for specific Greek patterns: -ises, -yses, -ases
+        if (lower.endsWith('ses') && lower.length > 4) {
+            if (lower.endsWith('ises') || lower.endsWith('yses') || lower.endsWith('ases')) {
+                return this.matchCase(value.slice(0, -2) + 'is', value);  // crises -> crisis, analyses -> analysis
+            }
+        }
+
+        // Words ending in -a (Latin/Greek)
+        if (lower.endsWith('a') && lower.length > 2 && !lower.endsWith('ia')) {
+            return this.matchCase(value.slice(0, -1) + 'on', value);  // criteria -> criterion
+        }
+
+        // Words ending in -es
+        if (lower.endsWith('es') && lower.length > 3) {
+            // Check for specific patterns that take -es
+            if (lower.endsWith('sses') || lower.endsWith('xes') || lower.endsWith('zes') ||
+                lower.endsWith('shes') || lower.endsWith('ches')) {
+                return this.matchCase(value.slice(0, -2), value);  // classes -> class, boxes -> box, dishes -> dish
+            }
+            // For words ending in -oes
+            if (lower.endsWith('oes')) {
+                return this.matchCase(value.slice(0, -2), value);  // heroes -> hero, potatoes -> potato
+            }
+            // For words ending in -ives
+            if (lower.endsWith('ives')) {
+                return this.matchCase(value.slice(0, -3) + 'ife', value);  // knives -> knife (already handled above)
+            }
+            // Otherwise just remove -s (houses -> house)
+            return this.matchCase(value.slice(0, -1), value);
+        }
+
+        // Words ending in -s (but not -ss)
+        if (lower.endsWith('s') && !lower.endsWith('ss') && lower.length > 1) {
+            return this.matchCase(value.slice(0, -1), value);  // cats -> cat
+        }
+
         return value;
     }
 
@@ -559,15 +662,99 @@ class Str {
      */
     static plural(value, count = 2) {
         if (count === 1) return value;
+        if (!value || value.length === 0) return value;
 
-        // Simple pluralization rules
-        if (value.endsWith('y') && !/[aeiou]y$/.test(value)) {
-            return value.slice(0, -1) + 'ies';
+        const lower = value.toLowerCase();
+
+        // Uncountable words - return as-is
+        const uncountable = [
+            'equipment', 'information', 'rice', 'money', 'species',
+            'series', 'fish', 'sheep', 'moose', 'deer', 'news',
+            'pants', 'scissors', 'trousers', 'glasses', 'police', 'related', 'recommended'
+        ];
+        if (uncountable.includes(lower)) {
+            return value;
         }
-        if (value.endsWith('s') || value.endsWith('sh') || value.endsWith('ch')) {
-            return value + 'es';
+
+        // Irregular plurals
+        const irregular = {
+            'man': 'men',
+            'woman': 'women',
+            'child': 'children',
+            'tooth': 'teeth',
+            'foot': 'feet',
+            'person': 'people',
+            'mouse': 'mice',
+            'goose': 'geese',
+            'ox': 'oxen',
+            'criterion': 'criteria',
+            'phenomenon': 'phenomena',
+            'analysis': 'analyses',
+            'basis': 'bases',
+            'diagnosis': 'diagnoses',
+            'thesis': 'theses'
+        };
+
+        if (irregular[lower]) {
+            return this.matchCase(irregular[lower], value);
         }
-        return value + 's';
+
+        // Words ending in -f or -fe
+        if (lower.endsWith('f')) {
+            return this.matchCase(value.slice(0, -1) + 'ves', value);  // wolf -> wolves
+        }
+        if (lower.endsWith('fe')) {
+            return this.matchCase(value.slice(0, -2) + 'ves', value);  // knife -> knives
+        }
+
+        // Words ending in -o
+        if (lower.endsWith('o')) {
+            // Words that take -oes
+            const oesWords = ['hero', 'potato', 'tomato', 'echo', 'torpedo', 'veto'];
+            if (oesWords.includes(lower)) {
+                return this.matchCase(value + 'es', value);
+            }
+            // Words ending in vowel + o OR words like 'photo', 'piano' take just -s
+            if (/[aeiou]o$/.test(lower) || ['photo', 'piano', 'solo', 'halo', 'portfolio'].includes(lower)) {
+                return this.matchCase(value + 's', value);  // radio -> radios, photo -> photos
+            }
+            // Most other -o words take -es
+            return this.matchCase(value + 'es', value);  // hero -> heroes
+        }
+
+        // Words ending in -us (Latin)
+        if (lower.endsWith('us')) {
+            return this.matchCase(value.slice(0, -2) + 'i', value);  // radius -> radii
+        }
+
+        // Words ending in -is (Greek)
+        if (lower.endsWith('is')) {
+            return this.matchCase(value.slice(0, -2) + 'es', value);  // crisis -> crises
+        }
+
+        // Words ending in -on (Greek)
+        if (lower.endsWith('on') && ['criterion', 'phenomenon'].includes(lower)) {
+            return this.matchCase(value.slice(0, -2) + 'a', value);  // criterion -> criteria
+        }
+
+        // Words ending in -y
+        if (lower.endsWith('y')) {
+            // Consonant + y: -y -> -ies
+            if (!/[aeiou]y$/.test(lower)) {
+                return this.matchCase(value.slice(0, -1) + 'ies', value);  // city -> cities
+            }
+            // Vowel + y: just add -s
+            return this.matchCase(value + 's', value);  // day -> days
+        }
+
+        // Words ending in -s, -ss, -sh, -ch, -x, -z
+        if (['s', 'x', 'z'].some(ending => lower.endsWith(ending)) ||
+            ['ss', 'sh', 'ch'].some(ending => lower.endsWith(ending))) {
+            return this.matchCase(value + 'es', value);  // class -> classes, box -> boxes
+        }
+
+        // Default: just add -s
+        return this.matchCase(value + 's', value);  // car -> cars
     }
 
     /**
