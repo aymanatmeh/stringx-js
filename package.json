@@ -1,7 +1,7 @@
 {
   "name": "stringx-js",
-  "version": "1.0.3",
-  "description": "A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper class with 95+ methods for case conversion, validation, manipulation, and generation. Now with fluent method chaining!",
+  "version": "1.0.4",
+  "description": "A comprehensive JavaScript string and number manipulation library inspired by Laravel. Includes 95+ string methods with fluent chaining plus powerful number formatting (currency, fileSize, abbreviate, ordinals, etc.)",
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
@@ -12,6 +12,7 @@
   },
   "keywords": [
     "string",
+    "number",
     "laravel",
     "str",
     "utility",
@@ -20,6 +21,12 @@
     "typescript",
     "es6",
     "string-manipulation",
+    "number-formatting",
+    "currency",
+    "percentage",
+    "filesize",
+    "abbreviate",
+    "ordinal",
     "uuid",
     "ulid",
     "camelcase",
@@ -33,7 +40,9 @@
     "fluent",
     "chaining",
     "method-chaining",
-    "stringable"
+    "stringable",
+    "intl",
+    "locale"
   ],
   "author": "Ayman Atmeh",
   "license": "MIT",
@@ -44,7 +53,7 @@
   "bugs": {
     "url": "https://github.com/AymanAtmeh/stringx-js/issues"
   },
-  "homepage": "https://github.com/AymanAtmeh/stringx-js#readme",
+  "homepage": "https://www.stringx-js.com/",
   "dependencies": {
     "uuid": "^11.0.3"
   },
@@ -58,6 +67,8 @@
     "src/Str.d.ts",
     "src/Stringable.js",
     "src/Stringable.d.ts",
+    "src/Number.js",
+    "src/Number.d.ts",
     "src/helpers.js",
     "README.md",
     "LICENSE",

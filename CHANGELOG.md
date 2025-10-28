@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2024-10-28
+
+### Added
+- **🔢 Number formatting class (inspired by Laravel's Number helper)**
+  - New `Number` class with 25+ static methods for number manipulation
+  - **Formatting methods:**
+    - `format()` - Locale-aware number formatting with thousand separators
+    - `percentage()` - Convert to percentage format (e.g., "66.67%")
+    - `currency()` - Format as currency with locale support (e.g., "$1,234.56", "€1,234.56")
+    - `fileSize()` - Convert bytes to human-readable sizes (B, KB, MB, GB, TB, etc.)
+  - **Human-readable numbers:**
+    - `forHumans()` - Convert to readable format (e.g., "1.5 million", "2.5 billion")
+    - `abbreviate()` - Abbreviate large numbers (e.g., "1K", "2.5M", "3.5B")
+  - **Spelling and ordinals:**
+    - `spell()` - Spell out numbers in words (e.g., "forty-two", "one hundred")
+    - `ordinal()` - Convert to ordinal format (e.g., "1st", "22nd", "103rd")
+    - `spellOrdinal()` - Spell out ordinals (e.g., "first", "twenty-second")
+  - **Parsing methods:**
+    - `parse()` - Parse formatted number strings
+    - `parseInt()` - Parse strings to integers
+    - `parseFloat()` - Parse strings to floats
+  - **Utility methods:**
+    - `clamp()` - Constrain number between min/max values
+    - `pairs()` - Generate [min, max] pairs for pagination ranges
+    - `trim()` - Remove trailing zeros from decimals
+  - **Locale and currency management:**
+    - `useLocale()` / `defaultLocale()` - Set/get default locale
+    - `useCurrency()` / `defaultCurrency()` - Set/get default currency
+    - `withLocale()` - Temporarily use different locale for callback
+    - `withCurrency()` - Temporarily use different currency for callback
+  - Full TypeScript support with `src/Number.d.ts`
+  - Export as named export: `import { Number } from 'stringx-js'`
+  - Uses native `Intl.NumberFormat` and `Intl.PluralRules` APIs for locale support
+
+- **📚 examples and documentation**
+  - Added `examples/number-examples.js` with 16 sections demonstrating all Number methods
+  - Added Number examples to `examples/typescript-example.ts` with type-safe implementations
+  - Real-world examples: e-commerce pricing, analytics dashboards, pagination, social media stats
+  - Combined Str + Number examples showing how to use both classes together
+
+- **🎮 Demo & Playground section in README**
+  - Added prominent badge linking to [stringx-js.com](https://www.stringx-js.com/)
+  - New "Demo & Playground" section highlighting:
+    - Live Editor for testing all methods
+    - Chain Builder visual tool for fluent chaining
+    - Interactive examples and method explorer
+    - TypeScript support with autocomplete
+  - Perfect for learning, experimentation, and teaching
+
+### Changed
+- **Package metadata updates**
+  - Updated description to mention number formatting capabilities
+  - Added number-related keywords: `number`, `number-formatting`, `currency`, `percentage`, `filesize`, `abbreviate`, `ordinal`, `intl`, `locale`
+  - Updated homepage to `https://www.stringx-js.com/`
+  - Added `src/Number.js` and `src/Number.d.ts` to files array
+  - Updated version headers in type definition files
+
+### Testing
+- Added 65 comprehensive tests for Number class (219 total tests)
+- All tests passing (219/219) ✅
+- Test coverage includes:
+  - All formatting methods (format, percentage, currency, fileSize)
+  - Human-readable conversions (forHumans, abbreviate)
+  - Spelling and ordinals (spell, ordinal, spellOrdinal)
+  - Parsing methods (parse, parseInt, parseFloat)
+  - Utility methods (clamp, pairs, trim)
+  - Locale and currency management (withLocale, withCurrency, useLocale, useCurrency)
+  - Edge cases and error handling
+
+### Documentation
+- Updated README with comprehensive Number class documentation
+- Added Number TypeScript examples showing type-safe usage
+- Documented all 25+ Number methods with examples
+- Added demo badges and playground links for better discoverability
+
 ## [1.0.3] - 2024-10-28
 
 ### Enhanced
