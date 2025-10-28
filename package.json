@@ -1,6 +1,6 @@
 {
   "name": "stringx-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper class with 95+ methods for case conversion, validation, manipulation, and generation. Now with fluent method chaining!",
   "type": "module",
   "main": "index.js",
@@ -39,12 +39,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/stringx-js.git"
+    "url": "git+https://github.com/AymanAtmeh/stringx-js.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/stringx-js/issues"
+    "url": "https://github.com/AymanAtmeh/stringx-js/issues"
   },
-  "homepage": "https://github.com/yourusername/stringx-js#readme",
+  "homepage": "https://github.com/AymanAtmeh/stringx-js#readme",
   "dependencies": {
     "uuid": "^11.0.3"
   },
