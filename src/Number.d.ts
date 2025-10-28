@@ -23,11 +23,12 @@ declare class Number {
    * Parse a string into a number according to the specified locale
    *
    * @param string - The string to parse
-   * @param locale - The locale to use
+   * @param locale - The locale to use for parsing
    * @returns The parsed number or null if invalid
    *
    * @example
-   * Number.parse("1,234.56"); // 1234.56
+   * Number.parse("1,234.56"); // 1234.56 (en locale)
+   * Number.parse("10,123", "fr"); // 10.123 (fr locale, comma is decimal)
    * Number.parse("invalid"); // null
    */
   static parse(string: string, locale?: string | null): number | null;
@@ -58,16 +59,18 @@ declare class Number {
   static parseFloat(string: string, locale?: string | null): number | null;
 
   /**
-   * Spell out the given number in the given locale
+   * Spell out the given number with multi-language support
    *
    * @param number - The number to spell out
-   * @param locale - The locale to use
+   * @param locale - The locale to use (en, fr, es, de, ar, pt, it, ru, pl, uk, tr, nl, id, ko, vi, zh)
    * @param after - Only spell if number is greater than this
    * @param until - Only spell if number is less than this
    * @returns The spelled out number
    *
    * @example
-   * Number.spell(42); // "forty-two"
+   * Number.spell(42); // "forty-two" (English)
+   * Number.spell(42, 'fr'); // "quarante-deux" (French)
+   * Number.spell(42, 'es'); // "cuarenta y dos" (Spanish)
    * Number.spell(100, null, 50); // "100"
    */
   static spell(number: number, locale?: string | null, after?: number | null, until?: number | null): string;
@@ -262,7 +265,7 @@ declare class Number {
    * @returns The current default locale
    *
    * @example
-   * Number.defaultLocale(); // "en-US"
+   * Number.defaultLocale(); // "en"
    */
   static defaultLocale(): string;
 

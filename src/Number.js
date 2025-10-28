@@ -1,3 +1,5 @@
+import n2words from 'n2words';
+
 /**
  * Number utility class for formatting and manipulating numbers
  * Inspired by Laravel's Number helper
@@ -9,7 +11,7 @@ class Number {
      * The current default locale
      * @private
      */
-    static #locale = 'en-US';
+    static #locale = 'en';
 
     /**
      * The current default currency
@@ -47,21 +49,67 @@ class Number {
 
     /**
      * Parse a string into a number according to the specified locale
-     * Note: JavaScript's Intl API doesn't provide parsing, so this is a simplified version
      *
      * @param {string} string - The string to parse
-     * @param {string|null} locale - The locale to use (for future compatibility)
+     * @param {string|null} locale - The locale to use for parsing
      * @returns {number|null} The parsed number or null if invalid
      *
      * @example
-     * Number.parse("1,234.56"); // 1234.56
+     * Number.parse("1,234.56"); // 1234.56 (en locale)
+     * Number.parse("10,123", "fr"); // 10.123 (fr locale, comma is decimal)
      * Number.parse("invalid"); // null
      */
     static parse(string, locale = null) {
-        // Remove common number formatting characters
-        const cleaned = string.replace(/[,\s]/g, '');
-        const parsed = parseFloat(cleaned);
+        if (!string || typeof string !== 'string') {
+            return null;
+        }
+
+        // Get locale-specific separators
+        const targetLocale = locale || this.#locale;
+        const separators = this.#getLocaleSeparators(targetLocale);
+
+        // Normalize the string by:
+        // 1. Remove thousands separators
+        // 2. Replace decimal separator with standard '.'
+        let normalized = string.trim();
+
+        // Remove thousands separator (including all types of spaces if not decimal separator)
+        if (separators.thousands) {
+            // Escape special regex characters
+            const escaped = separators.thousands.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            normalized = normalized.replace(new RegExp(escaped, 'g'), '');
+        }
+
+        // Also remove regular spaces and non-breaking spaces if they're not the decimal separator
+        if (separators.decimal !== ' ' && separators.decimal !== '\u00A0') {
+            normalized = normalized.replace(/[\s\u00A0]/g, '');
+        }
+
+        // Replace locale decimal separator with standard '.'
+        if (separators.decimal !== '.') {
+            normalized = normalized.replace(separators.decimal, '.');
+        }
+
+        // Parse the normalized string
+        const parsed = parseFloat(normalized);
         return isNaN(parsed) ? null : parsed;
+    }
+
+    /**
+     * Get decimal and thousands separators for a locale
+     * @private
+     */
+    static #getLocaleSeparators(locale) {
+        // Format a number to detect separators
+        const formatted = new Intl.NumberFormat(locale).format(1234.5);
+
+        // Extract decimal separator (character between 4 and 5)
+        const decimal = formatted.charAt(5) || '.';
+
+        // Extract thousands separator (character between 1 and 2)
+        const thousands = formatted.charAt(1);
+
+        return { decimal, thousands };
     }
 
     /**
@@ -96,16 +144,19 @@ class Number {
 
     /**
      * Spell out the given number in the given locale
-     * Uses Intl.NumberFormat with spellout rule set where available
+     * Uses n2words library for multi-language support
      *
      * @param {number} number - The number to spell out
-     * @param {string|null} locale - The locale to use
+     * @param {string|null} locale - The locale to use (e.g., 'en', 'fr', 'es', 'de', 'ar')
      * @param {number|null} after - Only spell if number is greater than this
      * @param {number|null} until - Only spell if number is less than this
      * @returns {string} The spelled out number
      *
      * @example
-     * Number.spell(42); // "forty-two"
+     * Number.spell(42); // "forty-two" (English)
+     * Number.spell(42, 'fr'); // "quarante-deux" (French)
+     * Number.spell(42, 'es'); // "cuarenta y dos" (Spanish)
+     * Number.spell(42, 'de'); // "zweiundvierzig" (German)
      * Number.spell(100, null, 50); // "100" (greater than 'after' threshold)
      */
     static spell(number, locale = null, after = null, until = null) {
@@ -118,9 +169,14 @@ class Number {
             return this.format(number, 0, null, locale);
         }
 
-        // JavaScript doesn't have native spell-out support in all environments
-        // Provide a basic implementation for common numbers
-        return this.#spellOutNumber(number, locale);
+        // Use n2words for multi-language support
+        try {
+            const lang = this.#mapLocaleToN2wordsLang(locale || this.#locale);
+            return n2words(number, { lang });
+        } catch (error) {
+            // Fallback to English if locale not supported
+            return n2words(number, { lang: 'en' });
+        }
     }
 
     /**
@@ -155,6 +211,7 @@ class Number {
 
     /**
      * Spell out the ordinal form (first, second, third, etc.)
+     * Note: Full locale support for ordinals is limited. English is fully supported.
      *
      * @param {number} number - The number to spell out
      * @param {string|null} locale - The locale to use
@@ -163,9 +220,25 @@ class Number {
      * @example
      * Number.spellOrdinal(1); // "first"
      * Number.spellOrdinal(22); // "twenty-second"
+     * Number.spellOrdinal(42, 'fr'); // "quarante-deuxième" (French, if supported)
      */
     static spellOrdinal(number, locale = null) {
-        return this.#spellOutOrdinal(number, locale);
+        const targetLocale = locale || this.#locale;
+        const lang = this.#mapLocaleToN2wordsLang(targetLocale);
+
+        // For English, use our basic implementation since n2words doesn't support ordinals properly
+        if (lang === 'en') {
+            return this.#basicOrdinalSpelled(number);
+        }
+
+        // For other languages, try n2words with ordinal flag
+        // Note: Support varies by language
+        try {
+            return n2words(number, { lang, ordinal: true });
+        } catch (error) {
+            // Fallback to basic English ordinal
+            return this.#basicOrdinalSpelled(number);
+        }
     }
 
     /**
@@ -429,7 +502,7 @@ class Number {
      * @returns {string} The current default locale
      *
      * @example
-     * Number.defaultLocale(); // "en-US"
+     * Number.defaultLocale(); // "en"
      */
     static defaultLocale() {
         return this.#locale;
@@ -470,40 +543,41 @@ class Number {
     }
 
     /**
-     * Spell out a number
+     * Map locale string to n2words language code
      * @private
      */
-    static #spellOutNumber(number, locale) {
-        const ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-        const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-        const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+    static #mapLocaleToN2wordsLang(locale) {
+        // Extract base language (e.g., 'en' from 'en-US', 'fr' from 'fr-FR')
+        const baseLang = locale.split('-')[0].toLowerCase();
 
-        if (number < 10) {
-            return ones[number];
-        }
-        if (number < 20) {
-            return teens[number - 10];
-        }
-        if (number < 100) {
-            const ten = Math.floor(number / 10);
-            const one = number % 10;
-            return tens[ten] + (one > 0 ? '-' + ones[one] : '');
-        }
-        if (number < 1000) {
-            const hundred = Math.floor(number / 100);
-            const remainder = number % 100;
-            return ones[hundred] + ' hundred' + (remainder > 0 ? ' ' + this.#spellOutNumber(remainder, locale) : '');
-        }
+        // Map to n2words supported languages
+        const langMap = {
+            'en': 'en',
+            'fr': 'fr',
+            'es': 'es',
+            'de': 'de',
+            'ar': 'ar',
+            'pt': 'pt',
+            'it': 'it',
+            'ru': 'ru',
+            'pl': 'pl',
+            'uk': 'uk',
+            'tr': 'tr',
+            'nl': 'nl',
+            'id': 'id',
+            'ko': 'ko',
+            'vi': 'vi',
+            'zh': 'zh'
+        };
 
-        // For larger numbers, return numeric format
-        return this.format(number, 0);
+        return langMap[baseLang] || 'en';
     }
 
     /**
-     * Spell out ordinal
+     * Basic spelled ordinal (English only fallback)
      * @private
      */
-    static #spellOutOrdinal(number, locale) {
+    static #basicOrdinalSpelled(number) {
         const ones = ['zeroth', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth'];
         const teens = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth'];
         const tens = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth'];

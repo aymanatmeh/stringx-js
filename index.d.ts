@@ -2,7 +2,7 @@
  * StringX-JS - Main Type Definitions
  * A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper
  *
- * @version 1.0.4
+ * @version 1.0.5
  * @author Ayman Atmeh
  * @license MIT
  */

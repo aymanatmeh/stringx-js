@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2024-10-28
+
+### Added
+- **🌍 Multi-language number spelling (powered by n2words)**
+  - `spell()` method now supports 16+ languages
+  - Supported languages: English (en), French (fr), Spanish (es), German (de), Arabic (ar), Portuguese (pt), Italian (it), Russian (ru), Polish (pl), Ukrainian (uk), Turkish (tr), Dutch (nl), Indonesian (id), Korean (ko), Vietnamese (vi), Chinese (zh)
+  - Examples:
+    - `Number.spell(42, 'fr')` → "quarante-deux" (French)
+    - `Number.spell(42, 'es')` → "cuarenta y dos" (Spanish)
+    - `Number.spell(42, 'de')` → "zweiundvierzig" (German)
+  - Added `n2words` package as dependency for robust multilingual support
+
+- **🌐 Locale-aware number parsing**
+  - Enhanced `parse()` method with locale-specific decimal and thousands separator detection
+  - Enhanced `parseInt()` and `parseFloat()` with locale support
+  - Added `#getLocaleSeparators()` helper to detect locale separators using Intl.NumberFormat
+  - Examples:
+    - `Number.parse("1,234.56")` → 1234.56 (en: comma=thousands, period=decimal)
+    - `Number.parse("10,123", "fr")` → 10.123 (fr: comma=decimal, space=thousands)
+    - `Number.parse("1.234,56", "de")` → 1234.56 (de: period=thousands, comma=decimal)
+    - `Number.parseInt("10,123", "fr")` → 10 (correctly interprets French decimal)
+  - Handles regular spaces and non-breaking spaces universally
+  - Properly escapes special regex characters in separators
+
+### Enhanced
+- **Number.spell() improvements**
+  - Now uses n2words for accurate multi-language support
+  - Maintains backward compatibility with English
+  - Fallback to English for unsupported locales
+  - Better handling of hundreds (e.g., "one hundred and twenty-three" with proper "and")
+
+- **Number.spellOrdinal() improvements**
+  - Enhanced with n2words support for available languages
+  - Falls back to basic English implementation for unsupported locales
+  - Maintains full English ordinal support (first, second, third, etc.)
+
+### Changed
+- **Default locale updated**
+  - Changed default locale from `'en-US'` to `'en'` for broader compatibility
+  - More flexible for international users while maintaining English defaults
+
+### Testing
+- Added 3 new comprehensive tests (223 total tests)
+- **Test: "handles locale-specific decimal separators"** in parse()
+  - Tests French format: "1 234,56" → 1234.56
+  - Tests German format: "1.234,56" → 1234.56
+- **Test: "handles French locale with comma as decimal separator"** in parseInt()
+  - Tests: "10,123" with 'fr' locale → 10
+- **Test: "handles locale-specific formats"** in parseFloat()
+  - Tests French: "10,123" → 10.123
+  - Tests German: "1.234,56" → 1234.56
+- **Test: "supports multiple locales"** in spell()
+  - Tests French: 42 → "quarante-deux", 100 → "cent"
+  - Tests Spanish: 42 → "cuarenta y dos", 100 → "cien"
+  - Tests German: 42 → "zweiundvierzig", 100 → "einhundert"
+- **Test: "formats percentages with precision"**
+  - Added test: `Number.percentage(10, 2)` → "10.00%"
+- All 223 tests passing ✅
+
+### Documentation
+- Updated README with comprehensive locale-aware parsing examples
+- Added multi-language spelling examples for all 16 supported languages
+- Updated TypeScript definitions with locale parameter documentation
+- Enhanced JSDoc comments with locale examples
+- Added credits to n2words library in README
+- Documented supported languages in both README and type definitions
+
+### Dependencies
+- Added `n2words` ^1.21.0 for multi-language number spelling
+
+### Package Metadata
+- Added keywords: `i18n`, `multilingual`, `n2words`, `spell-number`, `number-to-words`
+- Updated description to highlight number formatting capabilities
+
 ## [1.0.4] - 2024-10-28
 
 ### Added

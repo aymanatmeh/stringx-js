@@ -1,6 +1,6 @@
 {
   "name": "stringx-js",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A comprehensive JavaScript string and number manipulation library inspired by Laravel. Includes 95+ string methods with fluent chaining plus powerful number formatting (currency, fileSize, abbreviate, ordinals, etc.)",
   "type": "module",
   "main": "index.js",
@@ -42,7 +42,12 @@
     "method-chaining",
     "stringable",
     "intl",
-    "locale"
+    "locale",
+    "i18n",
+    "multilingual",
+    "n2words",
+    "spell-number",
+    "number-to-words"
   ],
   "author": "Ayman Atmeh",
   "license": "MIT",
@@ -55,6 +60,7 @@
   },
   "homepage": "https://www.stringx-js.com/",
   "dependencies": {
+    "n2words": "^1.21.0",
     "uuid": "^11.0.3"
   },
   "engines": {

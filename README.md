@@ -1472,11 +1472,28 @@ Number.abbreviate(2500000000);  // "3B"
 
 #### `spell(number, locale?, after?, until?)`
 
-Spell out numbers in words.
+Spell out numbers in words with **multi-language support** (powered by n2words).
 
 ```javascript
+// English (default)
 Number.spell(42);               // "forty-two"
-Number.spell(100);              // "one hundred"
+Number.spell(123);              // "one hundred and twenty-three"
+
+// French
+Number.spell(42, 'fr');         // "quarante-deux"
+Number.spell(100, 'fr');        // "cent"
+
+// Spanish
+Number.spell(42, 'es');         // "cuarenta y dos"
+Number.spell(100, 'es');        // "cien"
+
+// German
+Number.spell(42, 'de');         // "zweiundvierzig"
+Number.spell(100, 'de');        // "einhundert"
+
+// Supported languages: en, fr, es, de, ar, pt, it, ru, pl, uk, tr, nl, id, ko, vi, zh
+
+// Thresholds
 Number.spell(5, null, 10);      // "5" (don't spell, 5 <= 10)
 Number.spell(15, null, 10);     // "fifteen" (spell, 15 > 10)
 ```
@@ -1505,29 +1522,41 @@ Number.spellOrdinal(42);  // "forty-second"
 
 #### `parse(string, locale?)`
 
-Parse formatted number strings.
+Parse formatted number strings with locale-aware decimal and thousands separators.
 
 ```javascript
-Number.parse("1,234.56");  // 1234.56
-Number.parse("1 234.56");  // 1234.56
-Number.parse("invalid");   // null
+// English (default): period=decimal, comma=thousands
+Number.parse("1,234.56");       // 1234.56
+Number.parse("1 234.56");       // 1234.56
+
+// French: comma=decimal, space=thousands
+Number.parse("10,123", "fr");   // 10.123
+Number.parse("1 234,56", "fr"); // 1234.56
+
+// German: comma=decimal, period=thousands
+Number.parse("1.234,56", "de"); // 1234.56
+
+Number.parse("invalid");        // null
 ```
 
 #### `parseInt(string, locale?)`
 
-Parse strings to integers.
+Parse strings to integers with locale support.
 
 ```javascript
-Number.parseInt("1,234");  // 1234
-Number.parseInt("123.99"); // 123
+Number.parseInt("1,234");          // 1234 (en)
+Number.parseInt("123.99");         // 123
+Number.parseInt("10,123", "fr");   // 10 (comma is decimal in French)
 ```
 
 #### `parseFloat(string, locale?)`
 
-Parse strings to floats.
+Parse strings to floats with locale support.
 
 ```javascript
-Number.parseFloat("1,234.56"); // 1234.56
+Number.parseFloat("1,234.56");        // 1234.56 (en)
+Number.parseFloat("10,123", "fr");    // 10.123 (fr)
+Number.parseFloat("1.234,56", "de");  // 1234.56 (de)
 ```
 
 ### Number Utilities
@@ -1638,7 +1667,8 @@ MIT
 
 ## Credits
 
-Inspired by Laravel's [Str helper](https://laravel.com/docs/strings).
+- Inspired by Laravel's [Str helper](https://laravel.com/docs/strings) and [Number helper](https://laravel.com/docs/helpers#numbers)
+- Multi-language number spelling powered by [n2words](https://github.com/forzagreen/n2words) - Supports 16+ languages for converting numbers to words
 
 ## Autocomplete & IntelliSense
 

@@ -48,6 +48,16 @@ describe('Number', () => {
         test('parses negative numbers', () => {
             assert.strictEqual(Number.parse('-123.45'), -123.45);
         });
+
+        test('handles locale-specific decimal separators', () => {
+            // French: comma is decimal, space is thousands
+            assert.strictEqual(Number.parse('10,5', 'fr'), 10.5);
+            assert.strictEqual(Number.parse('1 234,56', 'fr-FR'), 1234.56);
+
+            // German: comma is decimal, period is thousands
+            assert.strictEqual(Number.parse('10,5', 'de'), 10.5);
+            assert.strictEqual(Number.parse('1.234,56', 'de-DE'), 1234.56);
+        });
     });
 
     describe('parseInt', () => {
@@ -64,6 +74,11 @@ describe('Number', () => {
         test('returns null for invalid input', () => {
             assert.strictEqual(Number.parseInt('invalid'), null);
         });
+
+        test('handles French locale with comma as decimal separator', () => {
+            // In French locale, comma is decimal separator: "10,123" = 10.123
+            assert.strictEqual(Number.parseInt('10,123', 'fr'), 10);
+        });
     });
 
     describe('parseFloat', () => {
@@ -74,6 +89,14 @@ describe('Number', () => {
 
         test('returns null for invalid input', () => {
             assert.strictEqual(Number.parseFloat('invalid'), null);
+        });
+
+        test('handles locale-specific formats', () => {
+            // French: comma as decimal
+            assert.strictEqual(Number.parseFloat('10,123', 'fr'), 10.123);
+
+            // German: comma as decimal, period as thousands
+            assert.strictEqual(Number.parseFloat('1.234,56', 'de'), 1234.56);
         });
     });
 
@@ -93,7 +116,7 @@ describe('Number', () => {
 
         test('spells out hundreds', () => {
             assert.strictEqual(Number.spell(100), 'one hundred');
-            assert.strictEqual(Number.spell(123), 'one hundred twenty-three');
+            assert.strictEqual(Number.spell(123), 'one hundred and twenty-three'); // n2words uses "and"
             assert.strictEqual(Number.spell(500), 'five hundred');
         });
 
@@ -105,6 +128,20 @@ describe('Number', () => {
         test('respects until threshold', () => {
             assert.strictEqual(Number.spell(5, null, null, 10), 'five');
             assert.strictEqual(Number.spell(15, null, null, 10), '15');
+        });
+
+        test('supports multiple locales', () => {
+            // French
+            assert.strictEqual(Number.spell(42, 'fr'), 'quarante-deux');
+            assert.strictEqual(Number.spell(100, 'fr'), 'cent');
+
+            // Spanish
+            assert.strictEqual(Number.spell(42, 'es'), 'cuarenta y dos');
+            assert.strictEqual(Number.spell(100, 'es'), 'cien');
+
+            // German
+            assert.strictEqual(Number.spell(42, 'de'), 'zweiundvierzig');
+            assert.strictEqual(Number.spell(100, 'de'), 'einhundert');
         });
     });
 
@@ -162,6 +199,7 @@ describe('Number', () => {
         test('formats percentages with precision', () => {
             assert.strictEqual(Number.percentage(66.666, 2), '66.67%');
             assert.strictEqual(Number.percentage(33.333, 1), '33.3%');
+            assert.strictEqual(Number.percentage(10, 2), '10.00%');
         });
 
         test('formats percentages with max precision', () => {
