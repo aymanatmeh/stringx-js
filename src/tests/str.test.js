@@ -672,4 +672,46 @@ describe('Str Helper Tests', () => {
             assert.strictEqual(Str.deduplicate('foo  --  bar', [' ', '-']), 'foo - bar');
         });
     });
+
+    describe('transliterate', () => {
+        test('removes accents and diacritics', () => {
+            assert.strictEqual(Str.transliterate('Café'), 'Cafe');
+            assert.strictEqual(Str.transliterate('naïve'), 'naive');
+            assert.strictEqual(Str.transliterate('Übermensch'), 'Ubermensch');
+            assert.strictEqual(Str.transliterate('São Paulo'), 'Sao Paulo');
+        });
+
+        test('handles German sharp s (ß)', () => {
+            assert.strictEqual(Str.transliterate('straße'), 'strasse');
+            assert.strictEqual(Str.transliterate('Fußball'), 'Fussball');
+        });
+
+        test('handles Latin ligatures', () => {
+            assert.strictEqual(Str.transliterate('Æon'), 'AEon');
+            assert.strictEqual(Str.transliterate('æther'), 'aether');
+            assert.strictEqual(Str.transliterate('Œuvre'), 'OEuvre');
+            assert.strictEqual(Str.transliterate("hors d'œuvre"), "hors d'oeuvre");
+        });
+
+        test('handles strict mode with unknown character', () => {
+            assert.strictEqual(Str.transliterate('Hello世界', '?', true), 'Hello??');
+            assert.strictEqual(Str.transliterate('Café☕', '*', true), 'Cafe*');
+        });
+
+        test('handles strict mode with null unknown', () => {
+            assert.strictEqual(Str.transliterate('Hello世界', null, true), 'Hello');
+        });
+
+        test('handles mixed accents and ligatures', () => {
+            assert.strictEqual(Str.transliterate('Café Æon naïve straße'), 'Cafe AEon naive strasse');
+        });
+
+        test('preserves ASCII characters', () => {
+            assert.strictEqual(Str.transliterate('Hello World 123!'), 'Hello World 123!');
+        });
+
+        test('handles empty string', () => {
+            assert.strictEqual(Str.transliterate(''), '');
+        });
+    });
 });

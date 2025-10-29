@@ -5,6 +5,160 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2024-10-29
+
+### Added
+- **🎯 Comprehensive Array Manipulation (`Arr` Class)**
+  - New `Arr` class with **60 powerful array and object manipulation methods**
+  - Inspired by Laravel's Arr helper class
+  - All methods are static and work with both arrays and objects
+  - **Complete implementation** - 100% of Laravel's Arr methods
+
+- **📍 Dot Notation Support**
+  - `get()` - Access nested values using dot notation (e.g., `'user.address.city'`)
+  - `set()` - Set nested values using dot notation
+  - `has()` - Check if nested keys exist
+  - `hasAll()` - Check if all keys exist
+  - `hasAny()` - Check if any keys exist
+  - `dot()` - Flatten nested objects to dot notation
+  - `undot()` - Expand dot notation back to nested objects
+  - `forget()` - Remove items using dot notation
+  - `add()` - Add items using dot notation if they don't exist
+
+- **🔍 Array Filtering & Selection**
+  - `where()` - Filter arrays using callbacks
+  - `reject()` - Filter with negation
+  - `whereNotNull()` - Remove null/undefined values
+  - `first()` - Get first element (with optional callback)
+  - `last()` - Get last element (with optional callback)
+  - `take()` - Take first or last N items
+  - `only()` - Get subset of items by keys
+  - `except()` - Get all except specified keys
+  - `select()` - Select specific fields from objects
+
+- **🎯 Plucking & Mapping**
+  - `pluck()` - Extract values from array of objects
+  - `map()` - Transform array elements
+  - `mapWithKeys()` - Create associative arrays
+  - `mapSpread()` - Map over nested chunks
+  - `keyBy()` - Key array by field or callback
+
+- **🔧 Array Manipulation**
+  - `flatten()` - Flatten multi-dimensional arrays (with depth control)
+  - `collapse()` - Collapse array of arrays into single array
+  - `partition()` - Split array by condition
+  - `divide()` - Split into keys and values
+  - `crossJoin()` - Create all possible permutations
+  - `shuffle()` - Randomly shuffle array
+  - `random()` - Get random items
+  - `prepend()` - Add to beginning
+  - `pull()` - Get and remove value
+  - `wrap()` - Wrap non-arrays in array
+
+- **📊 Sorting**
+  - `sort()` - Sort arrays (with callback or key support)
+  - `sortDesc()` - Sort descending
+  - `sortRecursive()` - Recursively sort nested structures
+  - `sortRecursiveDesc()` - Recursive descending sort
+
+- **✅ Testing & Validation**
+  - `exists()` - Check if key exists
+  - `every()` - Check if all items pass test
+  - `some()` - Check if any items pass test
+  - `isAssoc()` - Check if array is associative
+  - `isList()` - Check if array has sequential keys
+  - `accessible()` - Check if value is array-accessible
+
+- **🛡️ Type-Safe Getters**
+  - `array()` - Get array value with type validation
+  - `boolean()` - Get boolean value with type validation
+  - `integer()` - Get integer value with type validation
+  - `float()` - Get float value with type validation
+  - `string()` - Get string value with type validation
+  - All throw errors if type doesn't match
+
+- **🎨 String Conversion**
+  - `join()` - Join with optional final separator (Oxford comma style)
+  - `query()` - Convert to query string
+  - `toCssClasses()` - Compile to CSS classes
+  - `toCssStyles()` - Compile to CSS styles
+
+- **🔧 Additional Utilities**
+  - `prependKeysWith()` - Prefix all keys
+  - `from()` - Convert iterables, Sets, Maps, and objects to arrays
+  - `push()` - Push items onto nested arrays using dot notation
+  - `sole()` - Get sole item matching criteria or throw if multiple/none found
+  - Full TypeScript support with comprehensive type definitions
+  - Generic type support for all methods
+
+- **✨ Enhanced String Methods (`Str` Class)**
+  - **Enhanced `transliterate()` method** - Improved Unicode handling with better ligature support
+    - Now uses NFKD normalization instead of NFD for improved compatibility
+    - Added explicit handling for German sharp s (ß → ss)
+    - Added support for Latin ligatures (æ → ae, Æ → AE, œ → oe, Œ → OE)
+    - Better handling of accented characters across multiple languages
+    - Enhanced JSDoc documentation with examples
+    - Examples:
+      - `Str.transliterate('straße')` → "strasse"
+      - `Str.transliterate('Æon')` → "AEon"
+      - `Str.transliterate("hors d'œuvre")` → "hors d'oeuvre"
+
+### Testing
+- Added 107 comprehensive test cases for Arr class (17 for new methods)
+- Added 8 new test cases for enhanced transliterate() method
+- Total test count increased from 223 to 320 tests
+- Coverage includes:
+  - Dot notation operations
+  - Array filtering and transformation
+  - Type-safe getters
+  - Sorting algorithms
+  - Edge cases and complex scenarios
+  - Type conversions (from())
+  - Dot notation pushing (push())
+  - Sole item validation (sole())
+  - Unicode normalization and ligature handling (transliterate())
+  - Accented characters across multiple languages
+
+### Examples
+- Created comprehensive `examples/arr-examples.js` with 20 sections
+- Real-world use cases:
+  - E-commerce order processing
+  - Form data handling with dot notation
+  - Data analytics with nested metrics
+  - CSS class and style management
+- Demonstrates all 60 Arr methods with practical examples
+
+### Documentation
+- Added comprehensive Arr class documentation to README
+- Documented all 60 array manipulation methods
+- Added code examples for each method category (including from, push, sole)
+- Included real-world usage patterns
+- Updated package description to mention array capabilities (60 methods)
+- Added TypeScript usage examples
+
+### Package Metadata
+- Updated version to 1.1.0
+- Updated description: "A comprehensive JavaScript library for string, number, and array manipulation"
+- Added keywords: `array`, `arr`, `array-manipulation`, `array-utils`, `array-helpers`, `dot-notation`, `nested-objects`, `pluck`, `map`, `filter`, `flatten`, `collection`
+- Added `src/Arr.js` and `src/Arr.d.ts` to files array
+
+### Files Changed
+- `src/Arr.js` - New comprehensive Arr class (60 methods, ~1400 lines)
+- `src/Arr.d.ts` - Full TypeScript definitions for Arr class (including from, push, sole)
+- `src/tests/arr.test.js` - Comprehensive test suite (107 tests total, 17 new)
+- `examples/arr-examples.js` - Real-world examples (20 sections)
+- `src/Str.js` - Enhanced transliterate() method with improved ligature handling
+- `src/tests/str.test.js` - Added 8 comprehensive tests for transliterate() enhancements
+- `index.js` - Added Arr export
+- `index.d.ts` - Added Arr type definitions
+- `README.md` - Updated Arr and transliterate() documentation with examples
+- `package.json` - Updated version, description (60 array utilities), keywords, and files
+
+### Migration Notes
+- No breaking changes
+- Fully backward compatible with v1.0.5
+- Arr class is a new addition and doesn't affect existing Str or Number functionality
+
 ## [1.0.5] - 2024-10-28
 
 ### Added

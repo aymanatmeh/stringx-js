@@ -1,6 +1,6 @@
 # StringX-JS
 
-A comprehensive JavaScript string manipulation library inspired by Laravel's Str helper class. This package provides a wide range of methods for working with strings in a clean and intuitive way.
+A comprehensive JavaScript library for string, number, and array manipulation inspired by Laravel's helper classes. This package provides a wide range of methods for working with strings, numbers, and arrays in a clean and intuitive way.
 
 [![Demo](https://img.shields.io/badge/🎮_Live_Demo-stringx--js.com-blue?style=for-the-badge)](https://www.stringx-js.com/)
 [![npm version](https://img.shields.io/npm/v/stringx-js.svg?style=flat-square)](https://www.npmjs.com/package/stringx-js)
@@ -868,10 +868,20 @@ Str.ascii('über'); // 'uber'
 ```
 
 #### `transliterate(string, unknown = '?', strict = false)`
-Transliterate a string to its closest ASCII representation with control over unknown characters.
+Transliterate a string to its closest ASCII representation with control over unknown characters. Handles accents, diacritics, and special ligatures (ß, æ, Æ, œ, Œ).
 
 ```javascript
+// Remove accents and diacritics
 Str.transliterate('café'); // 'cafe'
+Str.transliterate('naïve'); // 'naive'
+Str.transliterate('Übermensch'); // 'Ubermensch'
+
+// Handle German sharp s and Latin ligatures
+Str.transliterate('straße'); // 'strasse'
+Str.transliterate('Æon'); // 'AEon'
+Str.transliterate("hors d'œuvre"); // "hors d'oeuvre"
+
+// Strict mode replaces non-ASCII characters
 Str.transliterate('Hello 世界', '?', true); // 'Hello ??'
 ```
 
@@ -1645,6 +1655,587 @@ import { Number } from 'stringx-js';
 const formatted: string = Number.format(1234.567, 2);
 const parsed: number | null = Number.parse("1,234");
 const pairs: Array<[number, number]> = Number.pairs(10, 3);
+```
+
+## Array Manipulation (`Arr` Class)
+
+StringX-JS includes a comprehensive `Arr` class for array and object manipulation, inspired by Laravel's Arr helper. All methods are static and provide powerful utilities for working with arrays and nested data structures.
+
+### Import
+
+```javascript
+import { Arr } from 'stringx-js';
+```
+
+### Dot Notation Access
+
+The Arr class excels at working with nested arrays and objects using dot notation:
+
+#### `get(array, key?, defaultValue?)`
+
+Get an item from an array using "dot" notation.
+
+```javascript
+const data = { user: { name: 'John', address: { city: 'NYC' } } };
+
+Arr.get(data, 'user.name');           // 'John'
+Arr.get(data, 'user.address.city');   // 'NYC'
+Arr.get(data, 'user.age', 25);        // 25 (default)
+```
+
+#### `set(array, key, value)`
+
+Set an array item using "dot" notation.
+
+```javascript
+const obj = {};
+Arr.set(obj, 'user.name', 'John');
+// { user: { name: 'John' } }
+
+Arr.set(obj, 'user.age', 30);
+// { user: { name: 'John', age: 30 } }
+```
+
+#### `has(array, keys)`
+
+Check if keys exist using "dot" notation.
+
+```javascript
+const data = { user: { name: 'John' } };
+
+Arr.has(data, 'user.name');              // true
+Arr.has(data, ['user.name', 'user.age']); // false
+```
+
+#### `dot(array, prepend?)`
+
+Flatten a multi-dimensional array with dots.
+
+```javascript
+const nested = { user: { name: 'John', address: { city: 'NYC' } } };
+Arr.dot(nested);
+// { 'user.name': 'John', 'user.address.city': 'NYC' }
+```
+
+#### `undot(array)`
+
+Convert flattened "dot" notation back to expanded array.
+
+```javascript
+const flat = { 'user.name': 'John', 'user.age': 30 };
+Arr.undot(flat);
+// { user: { name: 'John', age: 30 } }
+```
+
+### Array Filtering & Selection
+
+#### `where(array, callback)`
+
+Filter the array using a callback.
+
+```javascript
+const users = [
+    { name: 'John', age: 30 },
+    { name: 'Jane', age: 25 }
+];
+
+Arr.where(users, user => user.age > 26);
+// [{ name: 'John', age: 30 }]
+```
+
+#### `reject(array, callback)`
+
+Filter using the negation of the callback.
+
+```javascript
+Arr.reject([1, 2, 3, 4], x => x > 2);
+// [1, 2]
+```
+
+#### `whereNotNull(array)`
+
+Filter items where the value is not null or undefined.
+
+```javascript
+Arr.whereNotNull([1, null, 2, undefined, 3]);
+// [1, 2, 3]
+```
+
+#### `first(array, callback?, defaultValue?)`
+
+Return the first element passing a test.
+
+```javascript
+Arr.first([1, 2, 3, 4]);              // 1
+Arr.first([1, 2, 3, 4], x => x > 2);  // 3
+Arr.first([], null, 'default');        // 'default'
+```
+
+#### `last(array, callback?, defaultValue?)`
+
+Return the last element passing a test.
+
+```javascript
+Arr.last([1, 2, 3, 4]);              // 4
+Arr.last([1, 2, 3, 4], x => x < 3);  // 2
+```
+
+#### `sole(array, callback?)`
+
+Get the sole item passing a test, or throw if not exactly one.
+
+```javascript
+Arr.sole([1, 2, 3], x => x === 2);  // 2
+
+// Throws on multiple matches
+Arr.sole([1, 2, 3, 2], x => x === 2);  // Error: Multiple items found
+
+// Throws on no matches
+Arr.sole([1, 2, 3], x => x === 5);     // Error: Item not found
+```
+
+#### `take(array, limit)`
+
+Take the first or last N items.
+
+```javascript
+Arr.take([1, 2, 3, 4, 5], 3);    // [1, 2, 3]
+Arr.take([1, 2, 3, 4, 5], -2);   // [4, 5] (from end)
+```
+
+#### `only(array, keys)`
+
+Get a subset of items by keys.
+
+```javascript
+const data = { a: 1, b: 2, c: 3 };
+Arr.only(data, ['a', 'c']);
+// { a: 1, c: 3 }
+```
+
+#### `except(array, keys)`
+
+Get all items except specified keys.
+
+```javascript
+const data = { a: 1, b: 2, c: 3 };
+Arr.except(data, ['b']);
+// { a: 1, c: 3 }
+```
+
+### Plucking & Mapping
+
+#### `pluck(array, value, key?)`
+
+Pluck values from an array of objects.
+
+```javascript
+const users = [
+    { name: 'John', age: 30 },
+    { name: 'Jane', age: 25 }
+];
+
+Arr.pluck(users, 'name');
+// ['John', 'Jane']
+
+Arr.pluck(users, 'age', 'name');
+// { John: 30, Jane: 25 }
+```
+
+#### `select(array, keys)`
+
+Select specific fields from array of objects.
+
+```javascript
+const users = [
+    { id: 1, name: 'John', age: 30, email: 'john@example.com' }
+];
+
+Arr.select(users, ['id', 'name']);
+// [{ id: 1, name: 'John' }]
+```
+
+#### `map(array, callback)`
+
+Transform array elements.
+
+```javascript
+Arr.map([1, 2, 3], x => x * 2);
+// [2, 4, 6]
+
+Arr.map({ a: 1, b: 2 }, (v, k) => v * 2);
+// { a: 2, b: 4 }
+```
+
+#### `mapWithKeys(array, callback)`
+
+Create an associative array from a callback.
+
+```javascript
+const users = [{ id: 1, name: 'John' }];
+Arr.mapWithKeys(users, user => ({ [user.name]: user }));
+// { John: { id: 1, name: 'John' } }
+```
+
+#### `keyBy(array, key)`
+
+Key an array by a field or callback.
+
+```javascript
+const users = [
+    { id: 1, name: 'John' },
+    { id: 2, name: 'Jane' }
+];
+
+Arr.keyBy(users, 'id');
+// { 1: { id: 1, name: 'John' }, 2: { id: 2, name: 'Jane' } }
+```
+
+### Array Manipulation
+
+#### `flatten(array, depth?)`
+
+Flatten a multi-dimensional array.
+
+```javascript
+Arr.flatten([1, [2, [3, 4]]], 1);
+// [1, 2, [3, 4]]
+
+Arr.flatten([1, [2, [3, 4]]]);
+// [1, 2, 3, 4]
+```
+
+#### `collapse(array)`
+
+Collapse an array of arrays into a single array.
+
+```javascript
+Arr.collapse([[1, 2], [3, 4], [5]]);
+// [1, 2, 3, 4, 5]
+```
+
+#### `partition(array, callback)`
+
+Split array into two arrays based on a condition.
+
+```javascript
+const [even, odd] = Arr.partition([1, 2, 3, 4], x => x % 2 === 0);
+// even: [2, 4], odd: [1, 3]
+```
+
+#### `divide(array)`
+
+Divide into keys and values.
+
+```javascript
+Arr.divide({ a: 1, b: 2 });
+// [['a', 'b'], [1, 2]]
+```
+
+#### `crossJoin(...arrays)`
+
+Create all possible permutations.
+
+```javascript
+Arr.crossJoin([1, 2], ['a', 'b']);
+// [[1, 'a'], [1, 'b'], [2, 'a'], [2, 'b']]
+```
+
+#### `shuffle(array)`
+
+Randomly shuffle an array.
+
+```javascript
+Arr.shuffle([1, 2, 3, 4, 5]);
+// [3, 1, 5, 2, 4] (random order)
+```
+
+#### `random(array, number?, preserveKeys?)`
+
+Get random items from an array.
+
+```javascript
+Arr.random([1, 2, 3, 4, 5]);      // 3 (single item)
+Arr.random([1, 2, 3, 4, 5], 2);   // [4, 1] (multiple items)
+```
+
+### Sorting
+
+#### `sort(array, callback?)`
+
+Sort the array.
+
+```javascript
+Arr.sort([3, 1, 2]);
+// [1, 2, 3]
+
+const users = [{ age: 30 }, { age: 20 }];
+Arr.sort(users, 'age');
+// [{ age: 20 }, { age: 30 }]
+```
+
+#### `sortDesc(array, callback?)`
+
+Sort in descending order.
+
+```javascript
+Arr.sortDesc([1, 2, 3]);
+// [3, 2, 1]
+```
+
+#### `sortRecursive(array, descending?)`
+
+Recursively sort arrays and objects.
+
+```javascript
+Arr.sortRecursive({ b: 2, a: 1, c: { z: 26, x: 24 } });
+// { a: 1, b: 2, c: { x: 24, z: 26 } }
+```
+
+### Testing & Validation
+
+#### `exists(array, key)`
+
+Check if key exists in array.
+
+```javascript
+Arr.exists({ a: 1, b: 2 }, 'a');    // true
+Arr.exists([1, 2, 3], 1);            // true
+```
+
+#### `every(array, callback)`
+
+Check if all items pass a test.
+
+```javascript
+Arr.every([2, 4, 6], x => x % 2 === 0);
+// true
+```
+
+#### `some(array, callback)`
+
+Check if any items pass a test.
+
+```javascript
+Arr.some([1, 2, 3], x => x > 2);
+// true
+```
+
+#### `isAssoc(array)`
+
+Check if array is associative (object-like).
+
+```javascript
+Arr.isAssoc({ a: 1, b: 2 });    // true
+Arr.isAssoc([1, 2, 3]);          // false
+```
+
+#### `isList(array)`
+
+Check if array has sequential integer keys.
+
+```javascript
+Arr.isList([1, 2, 3]);    // true
+```
+
+### Type-Safe Getters
+
+Get values with type validation - throws error if type doesn't match:
+
+```javascript
+const data = {
+    active: true,
+    count: 42,
+    price: 99.99,
+    name: 'Product',
+    tags: ['a', 'b']
+};
+
+Arr.boolean(data, 'active');    // true
+Arr.integer(data, 'count');     // 42
+Arr.float(data, 'price');       // 99.99
+Arr.string(data, 'name');       // 'Product'
+Arr.array(data, 'tags');        // ['a', 'b']
+
+// Throws error if type mismatch
+Arr.boolean(data, 'count');  // Error: must be a boolean
+```
+
+### String Conversion
+
+#### `join(array, glue, finalGlue?)`
+
+Join array items with optional final separator.
+
+```javascript
+Arr.join(['a', 'b', 'c'], ', ');
+// 'a, b, c'
+
+Arr.join(['a', 'b', 'c'], ', ', ' and ');
+// 'a, b and c' (Oxford comma style)
+```
+
+#### `query(array)`
+
+Convert object to query string.
+
+```javascript
+Arr.query({ page: 1, limit: 10, sort: 'name' });
+// 'page=1&limit=10&sort=name'
+```
+
+#### `toCssClasses(array)`
+
+Compile to CSS classes.
+
+```javascript
+Arr.toCssClasses(['btn', { active: true, disabled: false }]);
+// 'btn active'
+```
+
+#### `toCssStyles(array)`
+
+Compile to CSS styles.
+
+```javascript
+Arr.toCssStyles(['color: red', { 'font-size: 14px': true }]);
+// 'color: red; font-size: 14px;'
+```
+
+### Utility Methods
+
+#### `wrap(value)`
+
+Wrap non-arrays in an array.
+
+```javascript
+Arr.wrap('hello');     // ['hello']
+Arr.wrap([1, 2]);      // [1, 2]
+Arr.wrap(null);        // []
+```
+
+#### `from(items)`
+
+Convert various types to arrays (iterables, objects with toArray(), plain objects).
+
+```javascript
+Arr.from([1, 2, 3]);            // [1, 2, 3]
+Arr.from(new Set([1, 2, 3]));   // [1, 2, 3]
+Arr.from(new Map([['a', 1]]));  // [['a', 1]]
+Arr.from({a: 1, b: 2});         // [1, 2] (values)
+
+// Throws on scalar values
+Arr.from('hello');  // Error
+Arr.from(42);       // Error
+```
+
+#### `add(array, key, value)`
+
+Add element if key doesn't exist.
+
+```javascript
+const obj = { a: 1 };
+Arr.add(obj, 'b', 2);  // { a: 1, b: 2 }
+Arr.add(obj, 'b', 3);  // { a: 1, b: 2 } (unchanged)
+```
+
+#### `forget(array, keys)`
+
+Remove items using dot notation.
+
+```javascript
+const obj = { a: 1, b: { c: 2, d: 3 } };
+Arr.forget(obj, 'b.c');
+// { a: 1, b: { d: 3 } }
+```
+
+#### `pull(array, key, defaultValue?)`
+
+Get and remove a value.
+
+```javascript
+const obj = { a: 1, b: 2 };
+const value = Arr.pull(obj, 'a');  // 1
+// obj is now { b: 2 }
+```
+
+#### `prepend(array, value, key?)`
+
+Add item to beginning.
+
+```javascript
+Arr.prepend([2, 3], 1);
+// [1, 2, 3]
+```
+
+#### `push(array, key, ...values)`
+
+Push items onto an array using dot notation.
+
+```javascript
+const data = { products: { items: [1, 2] } };
+Arr.push(data, 'products.items', 3, 4);
+// { products: { items: [1, 2, 3, 4] } }
+
+// Creates array if doesn't exist
+Arr.push({}, 'cart.items', 'apple');
+// { cart: { items: ['apple'] } }
+```
+
+### Real-World Examples
+
+```javascript
+// E-commerce order processing
+const orders = [
+    { id: 1, customer: 'John', total: 150, status: 'completed' },
+    { id: 2, customer: 'Jane', total: 89.99, status: 'pending' }
+];
+
+// Get completed orders
+const completed = Arr.where(orders, o => o.status === 'completed');
+
+// Calculate revenue
+const revenue = Arr.pluck(completed, 'total').reduce((a, b) => a + b, 0);
+
+// Group by customer
+const byCustomer = Arr.keyBy(orders, 'customer');
+
+// Form data handling with dot notation
+const formData = {
+    'user.name': 'John',
+    'user.email': 'john@example.com',
+    'user.address.city': 'NYC'
+};
+
+const userData = Arr.undot(formData);
+// { user: { name: 'John', email: 'john@example.com', address: { city: 'NYC' } } }
+
+// Data analytics - flatten nested metrics
+const analytics = {
+    users: { total: 10000, active: 7500 },
+    revenue: { daily: 15000, monthly: 450000 }
+};
+
+const flatMetrics = Arr.dot(analytics);
+// { 'users.total': 10000, 'users.active': 7500, ... }
+
+// CSS class management
+const buttonClasses = Arr.toCssClasses([
+    'btn',
+    { 'btn-primary': isPrimary, 'btn-disabled': isDisabled }
+]);
+```
+
+### TypeScript Support
+
+Full TypeScript support with comprehensive type definitions:
+
+```typescript
+import { Arr } from 'stringx-js';
+
+const data = Arr.get<string>({ user: { name: 'John' } }, 'user.name');
+const users = Arr.where<User>(userList, u => u.active);
+const names = Arr.pluck<User, string>(users, 'name');
 ```
 
 ## Testing

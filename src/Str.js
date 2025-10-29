@@ -1067,17 +1067,36 @@ class Str {
 
     /**
      * Transliterate a string to its closest ASCII representation.
+     * Uses Unicode normalization for accents and handles common ligatures.
+     *
+     * @param {string} string - The string to transliterate
+     * @param {string|null} unknown - Character to use for untranslatable characters
+     * @param {boolean|null} strict - If true, replace all non-ASCII with unknown character
+     * @returns {string}
+     * @example
+     * Str.transliterate('Café'); // 'Cafe'
+     * Str.transliterate('Übermensch'); // 'Ubermensch'
+     * Str.transliterate('naïve'); // 'naive'
+     * Str.transliterate('Æon'); // 'AEon'
+     * Str.transliterate('straße'); // 'strasse'
      */
     static transliterate(string, unknown = '?', strict = false) {
-        // Normalize and remove diacritics
-        const normalized = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        // Decompose and drop combining marks (accents) using NFKD for compatibility
+        let asciiish = string
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')    // Remove diacritics
+            .replace(/ß/g, 'ss')                 // German sharp s
+            .replace(/æ/g, 'ae')                 // Latin ligatures
+            .replace(/Æ/g, 'AE')
+            .replace(/œ/g, 'oe')
+            .replace(/Œ/g, 'OE');
 
-        // Replace non-ASCII characters with unknown character if strict
+        // If strict, replace anything still non-ASCII
         if (strict) {
-            return normalized.replace(/[^\x00-\x7F]/g, unknown);
+            asciiish = asciiish.replace(/[^\x00-\x7F]/g, unknown ?? '');
         }
 
-        return normalized;
+        return asciiish;
     }
 
     /**
