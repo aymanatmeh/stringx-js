@@ -1,6 +1,6 @@
 {
   "name": "stringx-js",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A comprehensive JavaScript library for string, number, and array manipulation inspired by Laravel. Includes 95+ string methods, 25+ number formatters, and 60 array utilities with fluent chaining, dot notation, and TypeScript support.",
   "type": "module",
   "main": "index.js",
