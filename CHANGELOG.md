@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2024-10-31
+
+### Security
+- **🔒 Prototype Pollution Protection in `Arr` Class**
+  - Added `isSafeKey()` validation method to prevent prototype pollution attacks
+  - Enhanced `set()` method with key validation to block dangerous keys (`__proto__`, `constructor`, `prototype`)
+  - Enhanced `forget()` method with key validation for safe deletions
+  - Protection applies to all methods that use `set()` internally (`add()`, `push()`)
+  - Validates both simple keys and dot notation paths
+  - Case-insensitive validation to catch variants like `__PROTO__` or `CONSTRUCTOR`
+  - Throws descriptive errors when dangerous keys are detected
+  - Added 18 comprehensive security tests covering multiple attack vectors
+  - **No pollution occurs** - All prototype pollution attempts are safely blocked
+  - **Backward compatible** - Safe operations continue to work normally
+
+### Testing
+- Added 18 security tests for prototype pollution protection
+- Total test count increased from 320 to 338 tests
+- All 338 tests passing ✅
+- Coverage includes:
+  - `set()` method protection against `__proto__`, `constructor`, `prototype`
+  - `forget()` method protection against dangerous keys
+  - `add()` and `push()` inherited protection
+  - `isSafeKey()` validation for dangerous and safe keys
+  - Multiple attack vectors (7 different patterns)
+  - Verification that no pollution occurs after blocked attempts
+
+### Files Changed
+- `src/Arr.js` - Added `isSafeKey()` method and enhanced `set()` and `forget()` with validation
+- `src/tests/arr.test.js` - Added 18 comprehensive security tests
+
 ## [1.1.2] - 2024-10-29
 
 ### Added

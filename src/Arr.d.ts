@@ -1,7 +1,7 @@
 /**
  * Arr - Array helper class inspired by Laravel's Arr helper
  *
- * @version 1.1.0
+ * @version 1.1.3
  */
 declare class Arr {
     /**

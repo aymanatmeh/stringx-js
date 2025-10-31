@@ -7,9 +7,22 @@
  * - Array transformations
  * - Functional operations
  *
- * @version 1.1.0
+ * @version 1.1.3
  */
 class Arr {
+    /**
+     * Check if a key is safe to use (not a prototype pollution vector).
+     *
+     * @private
+     * @param {*} key - The key to validate
+     * @returns {boolean}
+     */
+    static isSafeKey(key) {
+        const dangerousKeys = ['__proto__', 'constructor', 'prototype'];
+        const keyStr = String(key).toLowerCase();
+        return !dangerousKeys.includes(keyStr);
+    }
+
     /**
      * Determine whether the given value is array accessible.
      *
@@ -354,6 +367,14 @@ class Arr {
         }
 
         for (const key of keysArray) {
+            // Validate key to prevent prototype pollution
+            if (!this.isSafeKey(key)) {
+                throw new Error(
+                    `Unsafe key detected: "${key}". ` +
+                    `Cannot delete __proto__, constructor, or prototype to prevent prototype pollution.`
+                );
+            }
+
             // If exact key exists at top level, remove it
             if (this.exists(array, key)) {
                 if (Array.isArray(array)) {
@@ -367,6 +388,17 @@ class Arr {
             // Handle dot notation
             if (typeof key === 'string' && key.includes('.')) {
                 const parts = key.split('.');
+
+                // Validate all segments
+                for (const segment of parts) {
+                    if (!this.isSafeKey(segment)) {
+                        throw new Error(
+                            `Unsafe key segment detected: "${segment}" in path "${key}". ` +
+                            `Cannot delete __proto__, constructor, or prototype to prevent prototype pollution.`
+                        );
+                    }
+                }
+
                 let current = original;
 
                 while (parts.length > 1) {
@@ -959,11 +991,30 @@ class Arr {
         }
 
         if (typeof key !== 'string' || !key.includes('.')) {
+            // Validate key to prevent prototype pollution
+            if (!this.isSafeKey(key)) {
+                throw new Error(
+                    `Unsafe key detected: "${key}". ` +
+                    `Cannot set __proto__, constructor, or prototype to prevent prototype pollution.`
+                );
+            }
+
             array[key] = value;
             return array;
         }
 
         const keys = key.split('.');
+
+        // Validate all segments to prevent prototype pollution
+        for (const segment of keys) {
+            if (!this.isSafeKey(segment)) {
+                throw new Error(
+                    `Unsafe key segment detected: "${segment}" in path "${key}". ` +
+                    `Cannot set __proto__, constructor, or prototype to prevent prototype pollution.`
+                );
+            }
+        }
+
         let current = array;
 
         for (let i = 0; i < keys.length - 1; i++) {

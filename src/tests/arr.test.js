@@ -588,4 +588,186 @@ test('sole() works with objects', () => {
     assert.deepStrictEqual(result, {id: 2, name: 'Jane'});
 });
 
+// ═══════════════════════════════════════════════════════════════
+// SECURITY TESTS - Prototype Pollution Protection
+// ═══════════════════════════════════════════════════════════════
+
+test('set() blocks __proto__ key', () => {
+    const obj = {};
+    assert.throws(
+        () => Arr.set(obj, '__proto__', { isAdmin: true }),
+        /Unsafe key detected.*__proto__/i
+    );
+    // Verify no pollution occurred
+    assert.strictEqual({}.isAdmin, undefined);
+});
+
+test('set() blocks __proto__ in dot notation', () => {
+    const obj = {};
+    assert.throws(
+        () => Arr.set(obj, 'user.__proto__.isAdmin', true),
+        /Unsafe key segment detected.*__proto__/i
+    );
+    assert.strictEqual({}.isAdmin, undefined);
+});
+
+test('set() blocks constructor key', () => {
+    const obj = {};
+    assert.throws(
+        () => Arr.set(obj, 'constructor', { dangerous: true }),
+        /Unsafe key detected.*constructor/i
+    );
+});
+
+test('set() blocks constructor in dot notation', () => {
+    const obj = {};
+    assert.throws(
+        () => Arr.set(obj, 'user.constructor.prototype.isAdmin', true),
+        /Unsafe key segment detected.*constructor/i
+    );
+});
+
+test('set() blocks prototype key', () => {
+    const obj = {};
+    assert.throws(
+        () => Arr.set(obj, 'prototype', { dangerous: true }),
+        /Unsafe key detected.*prototype/i
+    );
+});
+
+test('set() blocks prototype in dot notation', () => {
+    const obj = {};
+    assert.throws(
+        () => Arr.set(obj, 'data.prototype.hack', true),
+        /Unsafe key segment detected.*prototype/i
+    );
+});
+
+test('set() allows safe keys to work normally', () => {
+    const obj = {};
+    Arr.set(obj, 'user.name', 'John');
+    Arr.set(obj, 'user.profile.email', 'john@example.com');
+    Arr.set(obj, 'settings.theme', 'dark');
+
+    assert.deepStrictEqual(obj, {
+        user: {
+            name: 'John',
+            profile: { email: 'john@example.com' }
+        },
+        settings: { theme: 'dark' }
+    });
+});
+
+test('add() inherits protection from set()', () => {
+    const obj = {};
+    assert.throws(
+        () => Arr.add(obj, '__proto__.isAdmin', true),
+        /Unsafe key.*__proto__/i
+    );
+    assert.strictEqual({}.isAdmin, undefined);
+});
+
+test('push() inherits protection from set()', () => {
+    const obj = { items: [] };
+    assert.throws(
+        () => Arr.push(obj, '__proto__.malicious', 'value'),
+        /Unsafe key segment detected.*__proto__/i
+    );
+});
+
+test('forget() blocks __proto__ key', () => {
+    const obj = { name: 'test' };
+    assert.throws(
+        () => Arr.forget(obj, '__proto__'),
+        /Unsafe key detected.*__proto__/i
+    );
+});
+
+test('forget() blocks __proto__ in dot notation', () => {
+    const obj = { user: { name: 'test' } };
+    assert.throws(
+        () => Arr.forget(obj, 'user.__proto__.constructor'),
+        /Unsafe key segment detected.*__proto__/i
+    );
+});
+
+test('forget() blocks constructor key', () => {
+    const obj = { name: 'test' };
+    assert.throws(
+        () => Arr.forget(obj, 'constructor'),
+        /Unsafe key detected.*constructor/i
+    );
+});
+
+test('forget() blocks prototype key', () => {
+    const obj = { name: 'test' };
+    assert.throws(
+        () => Arr.forget(obj, 'prototype'),
+        /Unsafe key detected.*prototype/i
+    );
+});
+
+test('forget() allows safe deletions', () => {
+    const obj = { user: { name: 'John', email: 'john@example.com' }, settings: { theme: 'dark' } };
+    Arr.forget(obj, 'user.email');
+    Arr.forget(obj, 'settings');
+
+    assert.deepStrictEqual(obj, { user: { name: 'John' } });
+});
+
+test('isSafeKey() correctly identifies dangerous keys', () => {
+    assert.strictEqual(Arr.isSafeKey('__proto__'), false);
+    assert.strictEqual(Arr.isSafeKey('__PROTO__'), false); // case insensitive
+    assert.strictEqual(Arr.isSafeKey('constructor'), false);
+    assert.strictEqual(Arr.isSafeKey('CONSTRUCTOR'), false);
+    assert.strictEqual(Arr.isSafeKey('prototype'), false);
+    assert.strictEqual(Arr.isSafeKey('PROTOTYPE'), false);
+});
+
+test('isSafeKey() allows safe keys', () => {
+    assert.strictEqual(Arr.isSafeKey('name'), true);
+    assert.strictEqual(Arr.isSafeKey('user'), true);
+    assert.strictEqual(Arr.isSafeKey('__private'), true);
+    assert.strictEqual(Arr.isSafeKey('proto'), true); // partial match should be safe
+    assert.strictEqual(Arr.isSafeKey('my_prototype'), true); // contains but not exact
+});
+
+test('Multiple attack vectors are blocked', () => {
+    const attacks = [
+        '__proto__.isAdmin',
+        'user.__proto__.isAdmin',
+        'constructor.prototype.isAdmin',
+        'data.constructor.prototype.hack',
+        'settings.prototype.exploit',
+        '__PROTO__.polluted',
+        'CONSTRUCTOR.bad'
+    ];
+
+    attacks.forEach(attack => {
+        const obj = {};
+        assert.throws(
+            () => Arr.set(obj, attack, true),
+            /Unsafe key/i,
+            `Attack vector "${attack}" should be blocked`
+        );
+    });
+});
+
+test('No pollution occurs after blocked attempts', () => {
+    const obj = {};
+
+    // Try various attacks
+    try { Arr.set(obj, '__proto__.polluted', true); } catch (e) {}
+    try { Arr.set(obj, 'constructor.bad', true); } catch (e) {}
+    try { Arr.set(obj, 'prototype.evil', true); } catch (e) {}
+
+    // Verify no pollution
+    assert.strictEqual({}.polluted, undefined);
+    assert.strictEqual({}.bad, undefined);
+    assert.strictEqual({}.evil, undefined);
+
+    // Verify original object is unchanged (except for valid operations)
+    assert.deepStrictEqual(Object.keys(obj).length, 0);
+});
+
 console.log('✅ All Arr tests completed!');
